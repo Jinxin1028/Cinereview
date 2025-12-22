@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+
+{% block title %}Login - CineReview{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="card shadow">
+            <div class="card-body p-4">
+                <div class="text-center mb-4">
+                    <h1 class="h3 mb-3 fw-normal">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>Login to CineReview
+                    </h1>
+                    <p class="text-muted">Sign in to access your reviews, likes, and recommendations</p>
+                </div>
+
+                <form method="POST" action="{{ url_for('login') }}" id="login-form" aria-labelledby="login-heading">
+                    {{ form.hidden_tag() }}
+
+                    <div class="mb-3">
+                        <label for="username" class="form-label">
+                            <i class="bi bi-person-circle me-1"></i> Username or Email
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text" id="username-addon">
+                                <i class="bi bi-person"></i>
+                            </span>
+                            <input type="text"
+                                   name="{{ form.username.name }}"
+                                   id="username"
+                                   class="form-control"
+                                   placeholder="Enter your username or email"
+                                   value="{{ form.username.data or '' }}"
+                                   aria-describedby="username-addon username-help">
+                        </div>
+                        <div id="username-help" class="form-text">
+                            Enter your username or email address
+                        </div>
+                        {% if form.username.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.username.errors %}
+                            <i class="bi bi-exclamation-triangle me-1"></i>{{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="password" class="form-label">
+                            <i class="bi bi-key me-1"></i> Password
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text" id="password-addon">
+                                <i class="bi bi-lock"></i>
+                            </span>
+                            <input type="password"
+                                   name="{{ form.password.name }}"
+                                   id="password"
+                                   class="form-control"
+                                   placeholder="Enter your password"
+                                   aria-describedby="password-help"
+                                   required>
+                        </div>
+                        <div id="password-help" class="form-text">
+                            <a href="#" class="text-decoration-none" onclick="alert('Password reset functionality is not yet implemented.'); return false;">
+                                <i class="bi bi-question-circle me-1"></i>Forgot your password?
+                            </a>
+                        </div>
+                        {% if form.password.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.password.errors %}
+                            <i class="bi bi-exclamation-triangle me-1"></i>{{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3 form-check">
+                        <input type="checkbox"
+                               name="{{ form.remember_me.name }}"
+                               id="remember_me"
+                               class="form-check-input"
+                               {% if form.remember_me.data %}checked{% endif %}>
+                        <label class="form-check-label" for="remember_me">
+                            Remember me on this device
+                        </label>
+                    </div>
+
+                    <div class="d-grid gap-2 mb-3">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
+                        </button>
+                    </div>
+
+                    <div class="text-center mb-3">
+                        <span class="text-muted">or</span>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('register') }}" class="btn btn-outline-primary">
+                            <i class="bi bi-person-plus me-2"></i>Create New Account
+                        </a>
+                    </div>
+                </form>
+
+                <hr class="my-4">
+
+                <div class="text-center">
+                    <p class="mb-2">
+                        <small class="text-muted">
+                            By signing in, you agree to our
+                            <a href="#" class="text-decoration-none">Terms of Service</a> and
+                            <a href="#" class="text-decoration-none">Privacy Policy</a>
+                        </small>
+                    </p>
+                    <p class="mb-0">
+                        <small>
+                            Need help? <a href="#" class="text-decoration-none">Contact Support</a>
+                        </small>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Accessibility Notice -->
+        <div class="card mt-4 border-info">
+            <div class="card-body py-3">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-info-circle-fill text-info me-2 fs-4"></i>
+                    <div>
+                        <h5 class="h6 mb-0">Accessibility Support</h5>
+                        <p class="small mb-0">
+                            This form is fully accessible. Use Tab to navigate, Enter to submit.
+                            Screen reader users: form fields are properly labeled.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Focus on username field on load
+    const usernameField = document.getElementById('username');
+    if (usernameField) {
+        setTimeout(() => usernameField.focus(), 100);
+    }
+
+    // Form validation
+    const form = document.getElementById('login-form');
+    form.addEventListener('submit', function(event) {
+        if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+
+            // Find first invalid field and focus on it
+            const invalidField = form.querySelector(':invalid');
+            if (invalidField) {
+                invalidField.focus();
+
+                // Announce error to screen reader
+                if (typeof Accessibility !== 'undefined') {
+                    Accessibility.announceToScreenReader('Please correct the errors in the form', 'assertive');
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

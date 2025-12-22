@@ -1,0 +1,259 @@
+/* ===== Accessibility Styles ===== */
+
+/* High Contrast Mode */
+body.high-contrast {
+    --primary-color: #0000ff;
+    --secondary-color: #0000a0;
+    --accent-color: #ff0000;
+    --text-color: #000;
+    --light-color: #fff;
+    background-color: #fff;
+}
+
+body.high-contrast .bg-dark {
+    background-color: #000 !important;
+}
+
+body.high-contrast .text-white {
+    color: #000 !important;
+}
+
+body.high-contrast .card {
+    border: 2px solid #000;
+}
+
+body.high-contrast .btn-outline-primary {
+    border-width: 2px;
+}
+
+/* Focus Styles */
+:focus {
+    outline: 3px solid var(--primary-color) !important;
+    outline-offset: 2px !important;
+}
+
+button:focus,
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+    box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.5) !important;
+}
+
+/* Remove default Bootstrap focus style */
+.btn-check:focus + .btn,
+.btn:focus {
+    box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.5) !important;
+}
+
+/* Skip Link Focus */
+.skip-link:focus {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 1060;
+}
+
+/* Screen Reader Only */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* High Contrast Focus for High Contrast Mode */
+body.high-contrast :focus {
+    outline: 3px solid #ff0000 !important;
+    outline-offset: 2px !important;
+}
+
+/* Increase Font Size */
+body.large-font {
+    font-size: 1.2rem;
+}
+
+body.large-font .h1, body.large-font h1 { font-size: 2.5rem; }
+body.large-font .h2, body.large-font h2 { font-size: 2rem; }
+body.large-font .h3, body.large-font h3 { font-size: 1.75rem; }
+body.large-font .h4, body.large-font h4 { font-size: 1.5rem; }
+body.large-font .h5, body.large-font h5 { font-size: 1.25rem; }
+body.large-font .h6, body.large-font h6 { font-size: 1.1rem; }
+
+body.xlarge-font {
+    font-size: 1.4rem;
+}
+
+body.xlarge-font .h1, body.xlarge-font h1 { font-size: 3rem; }
+body.xlarge-font .h2, body.xlarge-font h2 { font-size: 2.5rem; }
+body.xlarge-font .h3, body.xlarge-font h3 { font-size: 2rem; }
+body.xlarge-font .h4, body.xlarge-font h4 { font-size: 1.75rem; }
+body.xlarge-font .h5, body.xlarge-font h5 { font-size: 1.5rem; }
+body.xlarge-font .h6, body.xlarge-font h6 { font-size: 1.25rem; }
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+
+    .movie-card,
+    .like-btn,
+    .like-review-btn,
+    .accessibility-controls button {
+        transition: none !important;
+    }
+
+    .movie-card:hover {
+        transform: none !important;
+    }
+}
+
+/* ARIA Live Regions */
+[aria-live="polite"],
+[aria-live="assertive"] {
+    position: relative;
+}
+
+/* Proper contrast for text on colored backgrounds */
+.badge.bg-primary,
+.badge.bg-success,
+.badge.bg-warning,
+.badge.bg-info {
+    color: white;
+}
+
+.badge.bg-warning {
+    color: #212529; /* Bootstrap default for warning badge text */
+}
+
+/* Ensure all interactive elements are focusable */
+button:not(:disabled),
+[role="button"]:not(:disabled),
+a[href],
+input:not(:disabled),
+select:not(:disabled),
+textarea:not(:disabled) {
+    cursor: pointer;
+}
+
+/* Proper heading hierarchy indicators */
+.h1, .h2, .h3, .h4, .h5, .h6,
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
+}
+
+/* Clear link underlines */
+a:not(.btn):not(.dropdown-item) {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 2px;
+}
+
+a:not(.btn):not(.dropdown-item):hover {
+    text-decoration-thickness: 2px;
+}
+
+/* Form labels */
+label {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+/* Required field indicators */
+.required::after {
+    content: " *";
+    color: var(--danger-color);
+}
+
+/* Error states */
+.is-invalid:focus {
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.5) !important;
+}
+
+/* Button focus states */
+.btn:focus {
+    position: relative;
+}
+
+/* Tab order visualization (for debugging) */
+/* .debug-taborder:focus {
+    outline: 3px dashed #00ff00 !important;
+} */
+
+/* Proper table markup for screen readers */
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+th {
+    font-weight: 600;
+    text-align: left;
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+td, th {
+    padding: 0.75rem;
+    border: 1px solid #dee2e6;
+}
+
+/* List styling */
+ul, ol {
+    padding-left: 1.5rem;
+}
+
+li {
+    margin-bottom: 0.25rem;
+}
+
+/* Image fallback styling */
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+img::after {
+    content: " (Image: " attr(alt) ")";
+    display: block;
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    font-style: italic;
+    text-align: center;
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border: 1px dashed #dee2e6;
+}
+
+/* Decorative images should be hidden from screen readers */
+img[alt=""] {
+    aria-hidden: "true";
+}
+
+/* Video player accessibility */
+video {
+    max-width: 100%;
+}
+
+video:focus {
+    outline: 3px solid var(--primary-color);
+}
+
+/* Custom focus for specific components */
+.movie-card:focus-within {
+    box-shadow: 0 0 0 3px var(--primary-color);
+}
+
+.navbar-nav .nav-link:focus {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: var(--border-radius);
+}

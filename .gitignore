@@ -1,0 +1,28 @@
+
+.idea/
+*.iml  # PyCharm项目文件
+
+.venv/
+
+__pycache__/
+*.py[cod]
+
+instance/
+
+
+# 系统文件
+.DS_Store  # Mac系统缓存
+Thumbs.db  # Windows系统缓存
+
+# Flask环境变量文件（若后续新增.env文件，敏感信息不上传）
+.env
+.flaskenv
+
+# 依赖安装日志
+pip-log.txt
+pip-delete-this-directory.txt
+
+# 打包/构建文件（若后续打包项目用）
+dist/
+build/
+*.egg-info/

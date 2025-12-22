@@ -1,0 +1,652 @@
+{% extends "base.html" %}
+
+{% block title %}My Profile - CineReview{% endblock %}
+
+{% block content %}
+<div class="profile-page">
+    <!-- Profile Header -->
+    <div class="row mb-5">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <div class="avatar-lg mx-auto mb-3" aria-hidden="true">
+                            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" 
+                                 style="width: 100px; height: 100px; font-size: 2.5rem;">
+                                {{ current_user.username[0]|upper }}
+                            </div>
+                        </div>
+                        <h1 class="h4 mb-1">{{ current_user.display_name or current_user.username }}</h1>
+                        <p class="text-muted mb-0">@{{ current_user.username }}</p>
+                        <p class="small text-muted">
+                            <i class="bi bi-calendar me-1"></i>
+                            Member since {{ current_user.created_at.strftime('%B %Y') }}
+                        </p>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editProfileModal">
+                            <i class="bi bi-pencil-square me-2"></i>Edit Profile
+                        </button>
+                        <a href="{{ url_for('logout') }}" class="btn btn-outline-danger">
+                            <i class="bi bi-box-arrow-right me-2"></i>Logout
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- User Stats -->
+            <div class="card mt-3">
+                <div class="card-body">
+                    <h3 class="h6 card-title mb-3">Your Stats</h3>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                            <span>
+                                <i class="bi bi-chat-square-text me-2 text-primary"></i>
+                                Reviews Written
+                            </span>
+                            <span class="badge bg-primary rounded-pill">{{ user_stats.review_count }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                            <span>
+                                <i class="bi bi-hand-thumbs-up me-2 text-success"></i>
+                                Movies Liked
+                            </span>
+                            <span class="badge bg-success rounded-pill">{{ user_stats.like_count }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                            <span>
+                                <i class="bi bi-bookmark me-2 text-warning"></i>
+                                Watchlist
+                            </span>
+                            <span class="badge bg-warning rounded-pill">{{ user_stats.watchlist_count }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                            <span>
+                                <i class="bi bi-star me-2 text-info"></i>
+                                Average Rating
+                            </span>
+                            <span class="badge bg-info rounded-pill">{{ "%.1f"|format(user_stats.average_rating) }}/5</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-8">
+            <!-- Tabs Navigation -->
+            <nav class="nav nav-tabs mb-4" id="profileTabs" role="tablist">
+                <button class="nav-link active" id="reviews-tab" data-bs-toggle="tab" 
+                        data-bs-target="#reviews" type="button" role="tab" 
+                        aria-controls="reviews" aria-selected="true">
+                    <i class="bi bi-chat-square-text me-2"></i>My Reviews
+                </button>
+                <button class="nav-link" id="likes-tab" data-bs-toggle="tab" 
+                        data-bs-target="#likes" type="button" role="tab" 
+                        aria-controls="likes" aria-selected="false">
+                    <i class="bi bi-hand-thumbs-up me-2"></i>Liked Movies
+                </button>
+                <button class="nav-link" id="watchlist-tab" data-bs-toggle="tab" 
+                        data-bs-target="#watchlist" type="button" role="tab" 
+                        aria-controls="watchlist" aria-selected="false">
+                    <i class="bi bi-bookmark me-2"></i>My Watchlist
+                </button>
+                <button class="nav-link" id="recommendations-tab" data-bs-toggle="tab" 
+                        data-bs-target="#recommendations" type="button" role="tab" 
+                        aria-controls="recommendations" aria-selected="false">
+                    <i class="bi bi-lightbulb me-2"></i>Recommendations
+                </button>
+            </nav>
+            
+            <!-- Tab Content -->
+            <div class="tab-content" id="profileTabContent">
+                <!-- Reviews Tab -->
+                <div class="tab-pane fade show active" id="reviews" role="tabpanel" 
+                     aria-labelledby="reviews-tab" tabindex="0">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h2 class="h5 mb-0">My Reviews</h2>
+                        <span class="badge bg-primary">{{ user_reviews|length }} reviews</span>
+                    </div>
+
+                    {% if user_reviews %}
+                    <div class="list-group">
+                        {% for review in user_reviews %}
+                        <div class="list-group-item list-group-item-action" id="profile-review-{{ review.id }}">
+                            <div class="d-flex w-100 justify-content-between">
+                                <div>
+                                    <h5 class="mb-1">
+                                        <a href="{{ url_for('movie_detail', movie_id=review.movie.id) }}"
+                                           class="text-decoration-none">
+                                            {{ review.movie.title }} ({{ review.movie.year }})
+                                        </a>
+                                    </h5>
+                                    <div class="rating-stars small mb-2">
+                                        {% for i in range(review.rating) %}
+                                            <i class="bi bi-star-fill text-warning"></i>
+                                        {% endfor %}
+                                        <span class="ms-2 text-muted">{{ review.created_at.strftime('%b %d, %Y') }}</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <button class="btn btn-sm btn-outline-secondary profile-like-review-btn"
+                                                data-review-id="{{ review.id }}"
+                                                aria-label="{{ 'Unlike' if review.is_liked_by_current else 'Like' }} this review">
+                                            <i class="bi bi-hand-thumbs-up{% if review.is_liked_by_current %}-fill{% endif %}"></i>
+                                            <span class="profile-like-count ms-1">{{ review.likes_count }}</span>
+                                        </button>
+                                        <button class="btn btn-outline-danger"
+                                                onclick="confirmDeleteReview({{ review.id }})"
+                                                aria-label="Delete this review">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="mb-1">{{ review.content|truncate(150) }}</p>
+                            <div class="d-flex justify-content-between align-items-center mt-2">
+                                <small class="text-muted profile-text-likes">
+                                    <i class="bi bi-hand-thumbs-up me-1"></i>
+                                    {{ review.likes_count }} likes
+                                </small>
+                                <a href="{{ url_for('movie_detail', movie_id=review.movie.id) }}#review-{{ review.id }}"
+                                   class="btn btn-sm btn-outline-primary">
+                                    View on Movie Page
+                                </a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    {% if user_reviews|length > 5 %}
+                    <div class="text-center mt-4">
+                        <a href="{{ url_for('user_reviews', username=current_user.username) }}"
+                           class="btn btn-outline-secondary">
+                            View All Reviews
+                        </a>
+                    </div>
+                    {% endif %}
+
+                    {% else %}
+                    <div class="alert alert-info" role="alert">
+                        <i class="bi bi-info-circle me-2"></i>
+                        You haven't written any reviews yet.
+                        <a href="{{ url_for('movies') }}" class="alert-link">Browse movies</a> to get started!
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Likes Tab -->
+                <div class="tab-pane fade" id="likes" role="tabpanel"
+                     aria-labelledby="likes-tab" tabindex="0">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h2 class="h5 mb-0">Liked Movies</h2>
+                        <span class="badge bg-success">{{ liked_movies|length }} movies</span>
+                    </div>
+
+                    {% if liked_movies %}
+                    <div class="row row-cols-1 row-cols-md-2 g-4">
+                        {% for movie in liked_movies %}
+                        <div class="col">
+                            <div class="card h-100">
+                                <div class="row g-0">
+                                    <div class="col-4">
+                                        <img src="{{ movie.poster_url or 'https://via.placeholder.com/150x225?text=No+Poster' }}"
+                                             class="img-fluid rounded-start" alt="{{ movie.title }} poster"
+                                             style="height: 150px; width: 100%; object-fit: cover;">
+                                    </div>
+                                    <div class="col-8">
+                                        <div class="card-body">
+                                            <h5 class="card-title h6">{{ movie.title }}</h5>
+                                            <p class="card-text small text-muted">
+                                                {{ movie.year }} •
+                                                {% if movie.genres %}
+                                                    {{ movie.genres[:2]|map(attribute='name')|join(', ') }}
+                                                {% endif %}
+                                            </p>
+                                            <div class="rating-stars small mb-2">
+                                                <i class="bi bi-star-fill text-warning"></i>
+                                                <span class="ms-1">{{ "%.1f"|format(movie.average_rating or 0) }}/5</span>
+                                            </div>
+                                            <a href="{{ url_for('movie_detail', movie_id=movie.id) }}"
+                                               class="btn btn-sm btn-outline-primary w-100">
+                                                View Movie
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info" role="alert">
+                        <i class="bi bi-info-circle me-2"></i>
+                        You haven't liked any movies yet. Start browsing to find movies you love!
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Watchlist Tab -->
+                <div class="tab-pane fade" id="watchlist" role="tabpanel"
+                     aria-labelledby="watchlist-tab" tabindex="0">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h2 class="h5 mb-0">My Watchlist</h2>
+                        <span class="badge bg-warning">{{ watchlist_movies|length }} movies</span>
+                    </div>
+
+                    {% if watchlist_movies %}
+                    <div class="table-responsive">
+                        <table class="table table-hover" aria-label="My watchlist movies">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Movie</th>
+                                    <th scope="col">Year</th>
+                                    <th scope="col">Rating</th>
+                                    <th scope="col">Added On</th>
+                                    <th scope="col">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for movie in watchlist_movies %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <img src="{{ movie.poster_url or 'https://via.placeholder.com/50x75?text=No+Poster' }}"
+                                                 alt="{{ movie.title }} poster"
+                                                 class="me-3" style="width: 50px; height: 75px; object-fit: cover;">
+                                            <div>
+                                                <a href="{{ url_for('movie_detail', movie_id=movie.id) }}"
+                                                   class="text-decoration-none fw-semibold">
+                                                    {{ movie.title }}
+                                                </a>
+                                                <div class="small text-muted">
+                                                    {% if movie.genres %}
+                                                        {{ movie.genres[:2]|map(attribute='name')|join(', ') }}
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>{{ movie.year }}</td>
+                                    <td>
+                                        <div class="rating-stars small">
+                                            <i class="bi bi-star-fill text-warning"></i>
+                                            <span>{{ "%.1f"|format(movie.average_rating or 0) }}</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <small class="text-muted">
+                                            {% if movie.added_at is defined and movie.added_at %}
+                                                {{ movie.added_at.strftime('%b %d, %Y') }}
+                                            {% else %}
+                                                N/A
+                                            {% endif %}
+                                        </small>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <button class="btn btn-outline-primary watchlist-remove-btn"
+                                                    data-movie-id="{{ movie.id }}"
+                                                    aria-label="Remove from watchlist">
+                                                <i class="bi bi-bookmark-x"></i>
+                                            </button>
+                                            <a href="{{ url_for('movie_detail', movie_id=movie.id) }}"
+                                               class="btn btn-outline-secondary"
+                                               aria-label="View movie details">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info" role="alert">
+                        <i class="bi bi-info-circle me-2"></i>
+                        Your watchlist is empty. Add movies you want to watch later!
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Recommendations Tab -->
+                <div class="tab-pane fade" id="recommendations" role="tabpanel"
+                     aria-labelledby="recommendations-tab" tabindex="0">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h2 class="h5 mb-0">Recommended For You</h2>
+                        <button class="btn btn-sm btn-outline-primary" onclick="refreshRecommendations()">
+                            <i class="bi bi-arrow-clockwise"></i> Refresh
+                        </button>
+                    </div>
+
+                    {% if recommended_movies %}
+                    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                        {% for movie in recommended_movies %}
+                        <div class="col">
+                            <div class="card h-100">
+                                <img src="{{ movie.poster_url or 'https://via.placeholder.com/300x450?text=No+Poster' }}"
+                                     class="card-img-top" alt="{{ movie.title }} poster"
+                                     style="height: 200px; object-fit: cover;">
+                                <div class="card-body">
+                                    <h5 class="card-title h6">{{ movie.title }}</h5>
+                                    <p class="card-text small text-muted">
+                                        {{ movie.year }} •
+                                        {% if movie.genres %}
+                                            {{ movie.genres[:2]|map(attribute='name')|join(', ') }}
+                                        {% endif %}
+                                    </p>
+                                    <div class="rating-stars small mb-3">
+                                        <i class="bi bi-star-fill text-warning"></i>
+                                        <span class="ms-1">{{ "%.1f"|format(movie.average_rating or 0) }}/5</span>
+                                        <span class="text-muted ms-2">({{ movie.reviews|length }} reviews)</span>
+                                    </div>
+                                    <p class="card-text small">{{ movie.plot|truncate(100) if movie.plot else "No description available." }}</p>
+                                </div>
+                                <div class="card-footer bg-transparent">
+                                    <a href="{{ url_for('movie_detail', movie_id=movie.id) }}"
+                                       class="btn btn-sm btn-primary w-100">
+                                        View Details
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="alert alert-info mt-4" role="alert">
+                        <i class="bi bi-lightbulb me-2"></i>
+                        <strong>How recommendations work:</strong>
+                        These movies are recommended based on your liked movies and reviews.
+                        The more you use CineReview, the better your recommendations will be!
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info" role="alert">
+                        <i class="bi bi-info-circle me-2"></i>
+                        We need more information about your preferences to provide recommendations.
+                        Start by liking and reviewing movies!
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Profile Modal -->
+<div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title h5" id="editProfileModalLabel">Edit Profile</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="{{ url_for('edit_profile') }}">
+                {{ edit_form.hidden_tag() }}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="display_name" class="form-label">Display Name</label>
+                        {{ edit_form.display_name(class="form-control", id="display_name",
+                                                value=current_user.display_name or '') }}
+                        <div class="form-text">How you want to appear to other users</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email Address</label>
+                        {{ edit_form.email(class="form-control", id="email",
+                                         value=current_user.email) }}
+                    </div>
+                    <div class="mb-3">
+                        <label for="bio" class="form-label">Bio</label>
+                        <textarea class="form-control" id="bio" name="bio" rows="3"
+                                  placeholder="Tell us about yourself...">{{ current_user.bio or '' }}</textarea>
+                        <div class="form-text">Maximum 500 characters</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Get CSRF Token
+function getCSRFToken() {
+    const tokenElement = document.querySelector('meta[name="csrf-token"]');
+    if (tokenElement) {
+        return tokenElement.getAttribute('content');
+    }
+
+    // Fallback: look for CSRF token in cookies or form
+    const cookieToken = getCookie('csrf_token');
+    if (cookieToken) return cookieToken;
+
+    const formToken = document.querySelector('input[name="csrf_token"]');
+    if (formToken) return formToken.value;
+
+    console.warn('CSRF token not found');
+    return '';
+}
+
+// Helper: Get Cookie Value
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+    return null;
+}
+
+// Simple notification function
+function showNotification(message, type = 'info') {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+    alertDiv.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    `;
+
+    // Add to page
+    const container = document.querySelector('.container.mt-5');
+    if (container) {
+        container.insertBefore(alertDiv, container.firstChild);
+
+        // Auto remove after 5 seconds
+        setTimeout(() => {
+            if (alertDiv.parentNode) {
+                alertDiv.remove();
+            }
+        }, 5000);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // 为个人主页的点赞按钮添加事件监听器
+    const profileLikeButtons = document.querySelectorAll('.profile-like-review-btn');
+
+    profileLikeButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const reviewId = this.getAttribute('data-review-id');
+            toggleProfileReviewLike(reviewId, this);
+        });
+
+        button.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                this.click();
+            }
+        });
+    });
+
+    // Watchlist removal
+    const watchlistBtns = document.querySelectorAll('.watchlist-remove-btn');
+    watchlistBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const movieId = this.getAttribute('data-movie-id');
+            const row = this.closest('tr');
+
+            fetch(`/movie/${movieId}/watchlist`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCSRFToken()
+                },
+                body: JSON.stringify({ action: 'remove' })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    row.remove();
+
+                    // Update count
+                    const watchlistCount = document.querySelector('#watchlist-tab .badge');
+                    if (watchlistCount) {
+                        watchlistCount.textContent = parseInt(watchlistCount.textContent) - 1;
+                    }
+
+                    showNotification('Removed from watchlist', 'info');
+                }
+            });
+        });
+    });
+
+    // Tab keyboard navigation
+    const tabButtons = document.querySelectorAll('#profileTabs button');
+    tabButtons.forEach((button, index) => {
+        button.addEventListener('keydown', function(event) {
+            if (event.key === 'ArrowRight') {
+                event.preventDefault();
+                const nextIndex = (index + 1) % tabButtons.length;
+                tabButtons[nextIndex].focus();
+                tabButtons[nextIndex].click();
+            } else if (event.key === 'ArrowLeft') {
+                event.preventDefault();
+                const prevIndex = (index - 1 + tabButtons.length) % tabButtons.length;
+                tabButtons[prevIndex].focus();
+                tabButtons[prevIndex].click();
+            } else if (event.key === 'Home') {
+                event.preventDefault();
+                tabButtons[0].focus();
+                tabButtons[0].click();
+            } else if (event.key === 'End') {
+                event.preventDefault();
+                tabButtons[tabButtons.length - 1].focus();
+                tabButtons[tabButtons.length - 1].click();
+            }
+        });
+    });
+});
+
+// 专门为个人主页的评论点赞函数
+function toggleProfileReviewLike(reviewId, button) {
+    const csrfToken = getCSRFToken();
+    const icon = button.querySelector('i');
+    const countSpan = button.querySelector('.profile-like-count');
+
+    const isLiked = icon.classList.contains('bi-hand-thumbs-up-fill');
+
+    fetch(`/review/${reviewId}/like`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken,
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify({ action: isLiked ? 'unlike' : 'like' })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // 更新按钮状态
+            if (data.action === 'liked') {
+                icon.classList.remove('bi-hand-thumbs-up');
+                icon.classList.add('bi-hand-thumbs-up-fill');
+                button.setAttribute('aria-label', 'Unlike this review');
+            } else {
+                icon.classList.remove('bi-hand-thumbs-up-fill');
+                icon.classList.add('bi-hand-thumbs-up');
+                button.setAttribute('aria-label', 'Like this review');
+            }
+
+            // 更新按钮内的点赞数
+            if (countSpan && data.new_likes_count !== undefined) {
+                countSpan.textContent = data.new_likes_count;
+            }
+
+            // 更新列表中的文本点赞数
+            const reviewItem = document.getElementById(`profile-review-${reviewId}`);
+            if (reviewItem) {
+                const textLikes = reviewItem.querySelector('.profile-text-likes');
+                if (textLikes) {
+                    textLikes.innerHTML = `<i class="bi bi-hand-thumbs-up me-1"></i>${data.new_likes_count} likes`;
+                }
+            }
+
+            showNotification(`Review ${data.action} successfully`, 'success');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('Failed to update like. Please try again.', 'error');
+    });
+}
+
+function confirmDeleteReview(reviewId) {
+    if (confirm('Are you sure you want to delete this review? This action cannot be undone.')) {
+        fetch(`/review/${reviewId}/delete`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': getCSRFToken()
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Find and remove the review from the list
+                const reviewElement = document.getElementById(`profile-review-${reviewId}`);
+                if (reviewElement) {
+                    reviewElement.remove();
+
+                    // Update stats
+                    const reviewCount = document.querySelector('#reviews-tab .badge');
+                    if (reviewCount) {
+                        reviewCount.textContent = parseInt(reviewCount.textContent) - 1;
+                    }
+
+                    // Show success message
+                    showNotification('Review deleted successfully', 'success');
+                }
+            }
+        });
+    }
+}
+
+function refreshRecommendations() {
+    const btn = document.querySelector('#recommendations-tab .btn-outline-primary');
+    const originalHtml = btn.innerHTML;
+
+    btn.innerHTML = '<i class="bi bi-arrow-clockwise"></i> Loading...';
+    btn.disabled = true;
+
+    fetch('/recommendations/refresh')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification('Recommendations refreshed', 'success');
+                // In a real app, you would update the recommendations display
+                setTimeout(() => location.reload(), 1000);
+            }
+        })
+        .finally(() => {
+            btn.innerHTML = originalHtml;
+            btn.disabled = false;
+        });
+}
+</script>
+{% endblock %}

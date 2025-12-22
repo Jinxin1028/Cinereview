@@ -1,0 +1,195 @@
+{% extends "base.html" %}
+
+{% block title %}Movies - CineReview{% endblock %}
+
+{% block content %}
+<div class="movies-page">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h2">Browse Movies</h1>
+        <div class="d-flex gap-2">
+            <div class="dropdown">
+                <button class="btn btn-outline-secondary dropdown-toggle" type="button" 
+                        data-bs-toggle="dropdown" aria-expanded="false" aria-label="Sort movies by">
+                    <i class="bi bi-sort-down"></i> Sort By
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="?sort=title">Title A-Z</a></li>
+                    <li><a class="dropdown-item" href="?sort=-title">Title Z-A</a></li>
+                    <li><a class="dropdown-item" href="?sort=-year">Newest First</a></li>
+                    <li><a class="dropdown-item" href="?sort=year">Oldest First</a></li>
+                    <li><a class="dropdown-item" href="?sort=-rating">Highest Rated</a></li>
+                    <li><a class="dropdown-item" href="?sort=rating">Lowest Rated</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="GET" class="row g-3">
+                <div class="col-md-4">
+                    <label for="genre" class="form-label">Genre</label>
+                    <select class="form-select" id="genre" name="genre" aria-label="Filter by genre">
+                        <option value="">All Genres</option>
+                        {% for genre in genres %}
+                        <option value="{{ genre.id }}" {{ 'selected' if request.args.get('genre') == genre.id|string }}>
+                            {{ genre.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="year" class="form-label">Year</label>
+                    <select class="form-select" id="year" name="year" aria-label="Filter by year">
+                        <option value="">All Years</option>
+                        {% for year in years %}
+                        <option value="{{ year }}" {{ 'selected' if request.args.get('year') == year|string }}>
+                            {{ year }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="min_rating" class="form-label">Minimum Rating</label>
+                    <select class="form-select" id="min_rating" name="min_rating" aria-label="Filter by minimum rating">
+                        <option value="0">Any Rating</option>
+                        <option value="1" {{ 'selected' if request.args.get('min_rating') == '1' }}>1+ Stars</option>
+                        <option value="2" {{ 'selected' if request.args.get('min_rating') == '2' }}>2+ Stars</option>
+                        <option value="3" {{ 'selected' if request.args.get('min_rating') == '3' }}>3+ Stars</option>
+                        <option value="4" {{ 'selected' if request.args.get('min_rating') == '4' }}>4+ Stars</option>
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-funnel"></i> Filter
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Movies Grid -->
+    {% if movies.items %}
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-4">
+        {% for movie in movies.items %}
+        <div class="col">
+            <div class="card h-100 movie-card" tabindex="0">
+                <div class="position-relative">
+                    <img src="{{ movie.poster_url or 'https://via.placeholder.com/300x450?text=No+Poster' }}"
+                         class="card-img-top" alt="{{ movie.title }} movie poster"
+                         style="height: 300px; object-fit: cover;">
+                    <div class="position-absolute top-0 end-0 m-2">
+                        <span class="badge bg-warning text-dark">
+                            <i class="bi bi-star-fill"></i> {{ "%.1f"|format(movie.average_rating or 0) }}
+                        </span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h3 class="h5 card-title">{{ movie.title }}</h3>
+                    <p class="card-text text-muted small mb-2">
+                        {{ movie.year }} •
+                        {% if movie.genres %}
+                            {{ movie.genres[:3]|map(attribute='name')|join(', ') }}
+                        {% endif %}
+                    </p>
+                    <p class="card-text small">{{ movie.plot|truncate(80) if movie.plot else "No description available." }}</p>
+                </div>
+                <div class="card-footer bg-transparent border-top-0">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <a href="{{ url_for('movie_detail', movie_id=movie.id) }}"
+                           class="btn btn-sm btn-outline-primary">
+                            View Details
+                        </a>
+                        <div class="text-muted small">
+                            {{ movie.reviews|length }} reviews
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if movies.pages > 1 %}
+    <nav aria-label="Movie pages" class="mt-5">
+        <ul class="pagination justify-content-center">
+            <li class="page-item {{ 'disabled' if not movies.has_prev }}">
+                {% if movies.has_prev %}
+                <a class="page-link" href="{{ url_for('movies', page=movies.prev_num, genre=request.args.get('genre'), year=request.args.get('year'), min_rating=request.args.get('min_rating'), sort=request.args.get('sort')) }}"
+                   aria-label="Previous page">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+                {% else %}
+                <span class="page-link" aria-hidden="true">&laquo;</span>
+                {% endif %}
+            </li>
+
+            {% for page_num in movies.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+                {% if page_num %}
+                    <li class="page-item {{ 'active' if page_num == movies.page }}">
+                        {% if page_num == movies.page %}
+                        <span class="page-link" aria-current="page">
+                            {{ page_num }}
+                        </span>
+                        {% else %}
+                        <a class="page-link" href="{{ url_for('movies', page=page_num, genre=request.args.get('genre'), year=request.args.get('year'), min_rating=request.args.get('min_rating'), sort=request.args.get('sort')) }}"
+                           aria-label="Go to page {{ page_num }}">
+                            {{ page_num }}
+                        </a>
+                        {% endif %}
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">...</span>
+                    </li>
+                {% endif %}
+            {% endfor %}
+
+            <li class="page-item {{ 'disabled' if not movies.has_next }}">
+                {% if movies.has_next %}
+                <a class="page-link" href="{{ url_for('movies', page=movies.next_num, genre=request.args.get('genre'), year=request.args.get('year'), min_rating=request.args.get('min_rating'), sort=request.args.get('sort')) }}"
+                   aria-label="Next page">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+                {% else %}
+                <span class="page-link" aria-hidden="true">&raquo;</span>
+                {% endif %}
+            </li>
+        </ul>
+    </nav>
+    {% endif %}
+    
+    {% else %}
+    <div class="alert alert-info" role="alert">
+        <i class="bi bi-info-circle me-2"></i>
+        No movies found matching your criteria. Try adjusting your filters.
+    </div>
+    {% endif %}
+    
+    <!-- Statistics -->
+    <div class="card mt-5">
+        <div class="card-body">
+            <div class="row text-center">
+                <div class="col-md-3">
+                    <div class="display-6 fw-bold text-primary">{{ total_movies }}</div>
+                    <p class="text-muted">Total Movies</p>
+                </div>
+                <div class="col-md-3">
+                    <div class="display-6 fw-bold text-success">{{ total_reviews }}</div>
+                    <p class="text-muted">Total Reviews</p>
+                </div>
+                <div class="col-md-3">
+                    <div class="display-6 fw-bold text-warning">{{ "%.1f"|format(avg_rating) }}</div>
+                    <p class="text-muted">Average Rating</p>
+                </div>
+                <div class="col-md-3">
+                    <div class="display-6 fw-bold text-info">{{ total_genres }}</div>
+                    <p class="text-muted">Genres</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

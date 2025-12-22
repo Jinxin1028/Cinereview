@@ -1,0 +1,311 @@
+{% extends "base.html" %}
+
+{% block title %}Register - CineReview{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-7">
+        <div class="card shadow">
+            <div class="card-body p-4">
+                <div class="text-center mb-4">
+                    <h1 class="h3 mb-3 fw-normal">
+                        <i class="bi bi-person-plus me-2"></i>Join CineReview
+                    </h1>
+                    <p class="text-muted">Create an account to start reviewing movies and get personalized recommendations</p>
+                </div>
+
+                <form method="POST" action="{{ url_for('register') }}" id="register-form" aria-labelledby="register-heading">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="row">
+                        <!-- Username -->
+                        <div class="col-md-6 mb-3">
+                            <label for="username" class="form-label required">
+                                <i class="bi bi-person-badge me-1"></i> Username
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text" id="username-addon">
+                                    <i class="bi bi-at"></i>
+                                </span>
+                                <input type="text"
+                                       name="{{ form.username.name }}"
+                                       id="username"
+                                       class="form-control {% if form.username.errors %}is-invalid{% endif %}"
+                                       placeholder="Choose a username"
+                                       value="{{ form.username.data or '' }}"
+                                       aria-describedby="username-addon username-help"
+                                       required>
+                            </div>
+                            <div id="username-help" class="form-text">
+                                3-20 characters, letters, numbers, and underscores only
+                            </div>
+                            {% if form.username.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.username.errors %}
+                                <i class="bi bi-exclamation-triangle me-1"></i>{{ error }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Email -->
+                        <div class="col-md-6 mb-3">
+                            <label for="email" class="form-label required">
+                                <i class="bi bi-envelope me-1"></i> Email Address
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text" id="email-addon">
+                                    <i class="bi bi-mailbox"></i>
+                                </span>
+                                <input type="email"
+                                       name="{{ form.email.name }}"
+                                       id="email"
+                                       class="form-control {% if form.email.errors %}is-invalid{% endif %}"
+                                       placeholder="Enter your email"
+                                       value="{{ form.email.data or '' }}"
+                                       aria-describedby="email-addon email-help"
+                                       required>
+                            </div>
+                            <div id="email-help" class="form-text">
+                                We'll never share your email with anyone
+                            </div>
+                            {% if form.email.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.email.errors %}
+                                <i class="bi bi-exclamation-triangle me-1"></i>{{ error }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <!-- Password -->
+                        <div class="col-md-6 mb-3">
+                            <label for="password" class="form-label required">
+                                <i class="bi bi-key me-1"></i> Password
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text" id="password-addon">
+                                    <i class="bi bi-lock"></i>
+                                </span>
+                                <input type="password"
+                                       name="{{ form.password.name }}"
+                                       id="password"
+                                       class="form-control"
+                                       placeholder="Create a strong password"
+                                       value="{{ form.password.data or '' }}"
+                                       aria-describedby="password-help"
+                                       required>
+                            </div>
+                            <div id="password-help" class="form-text">
+                                At least 8 characters with letters and numbers
+                            </div>
+                            {% if form.password.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.password.errors %}
+                                <i class="bi bi-exclamation-triangle me-1"></i>{{ error }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Confirm Password -->
+                        <div class="col-md-6 mb-3">
+                            <label for="confirm_password" class="form-label required">
+                                <i class="bi bi-key-fill me-1"></i> Confirm Password
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text" id="confirm-addon">
+                                    <i class="bi bi-lock-fill"></i>
+                                </span>
+                                <input type="password"
+                                       name="{{ form.confirm_password.name }}"
+                                       id="confirm_password"
+                                       class="form-control"
+                                       placeholder="Confirm your password"
+                                       value="{{ form.confirm_password.data or '' }}"
+                                       aria-describedby="confirm-help"
+                                       required>
+                            </div>
+                            <div id="confirm-help" class="form-text">
+                                Re-enter your password for confirmation
+                            </div>
+                            {% if form.confirm_password.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.confirm_password.errors %}
+                                <i class="bi bi-exclamation-triangle me-1"></i>{{ error }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Display Name -->
+                    <div class="mb-3">
+                        <label for="display_name" class="form-label">
+                            <i class="bi bi-person-vcard me-1"></i> Display Name (Optional)
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text" id="display-addon">
+                                <i class="bi bi-person-circle"></i>
+                            </span>
+                            <input type="text"
+                                   name="{{ form.display_name.name }}"
+                                   id="display_name"
+                                   class="form-control {% if form.display_name.errors %}is-invalid{% endif %}"
+                                   placeholder="How you want to appear to others"
+                                   value="{{ form.display_name.data or '' }}">
+                        </div>
+                        <div id="display-help" class="form-text">
+                            Leave blank to use your username
+                        </div>
+                        {% if form.display_name.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.display_name.errors %}
+                            <i class="bi bi-exclamation-triangle me-1"></i>{{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Terms Agreement -->
+                    <div class="mb-4">
+                        <div class="form-check">
+                            <input type="checkbox"
+                                   name="{{ form.agree_terms.name }}"
+                                   id="agree_terms"
+                                   class="form-check-input {% if form.agree_terms.errors %}is-invalid{% endif %}"
+                                   {% if form.agree_terms.data %}checked{% endif %}
+                                   required>
+                            <label class="form-check-label" for="agree_terms">
+                                I agree to the
+                                <a href="#" class="text-decoration-none" target="_blank">Terms of Service</a>
+                                and
+                                <a href="#" class="text-decoration-none" target="_blank">Privacy Policy</a>
+                            </label>
+                            {% if form.agree_terms.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.agree_terms.errors %}
+                                <i class="bi bi-exclamation-triangle me-1"></i>{{ error }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="d-grid gap-2 mb-3">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-person-plus me-2"></i>Create Account
+                        </button>
+                    </div>
+
+                    <div class="text-center">
+                        <p class="mb-0">
+                            Already have an account?
+                            <a href="{{ url_for('login') }}" class="text-decoration-none fw-semibold">Sign In</a>
+                        </p>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Features Card -->
+        <div class="card mt-4 border-success">
+            <div class="card-body">
+                <h3 class="h5 card-title mb-3">
+                    <i class="bi bi-star-fill text-success me-2"></i>Why Join CineReview?
+                </h3>
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <div class="d-flex">
+                            <div class="me-3">
+                                <i class="bi bi-chat-square-text fs-4 text-primary"></i>
+                            </div>
+                            <div>
+                                <h4 class="h6 mb-1">Share Reviews</h4>
+                                <p class="small mb-0">Rate and review your favorite movies</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="d-flex">
+                            <div class="me-3">
+                                <i class="bi bi-hand-thumbs-up fs-4 text-warning"></i>
+                            </div>
+                            <div>
+                                <h4 class="h6 mb-1">Like & Save</h4>
+                                <p class="small mb-0">Save movies to your watchlist</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="d-flex">
+                            <div class="me-3">
+                                <i class="bi bi-lightbulb fs-4 text-info"></i>
+                            </div>
+                            <div>
+                                <h4 class="h6 mb-1">Get Recommendations</h4>
+                                <p class="small mb-0">Personalized movie suggestions</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Accessibility Info -->
+        <div class="mt-4">
+            <details class="border rounded p-3">
+                <summary class="fw-semibold">
+                    <i class="bi bi-universal-access me-2"></i>Accessibility Information
+                </summary>
+                <div class="mt-2 small">
+                    <p>This registration form is designed to be accessible to all users:</p>
+                    <ul class="mb-0">
+                        <li>All form fields have descriptive labels</li>
+                        <li>Tab key navigation is fully supported</li>
+                        <li>Screen reader compatible</li>
+                        <li>High contrast mode available</li>
+                        <li>Keyboard shortcuts: Tab to navigate, Enter to submit</li>
+                    </ul>
+                </div>
+            </details>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Form validation
+    const form = document.getElementById('register-form');
+    const usernameInput = document.getElementById('username');
+    
+    form.addEventListener('submit', function(event) {
+        if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+            
+            // Focus on first invalid field
+            const invalidField = form.querySelector(':invalid');
+            if (invalidField) {
+                invalidField.focus();
+                
+                // Announce error to screen reader
+                if (typeof Accessibility !== 'undefined') {
+                    Accessibility.announceToScreenReader('Please correct the errors in the form', 'assertive');
+                }
+            }
+        }
+    });
+    
+    // Focus on username field on load
+    if (usernameInput) {
+        setTimeout(() => usernameInput.focus(), 100);
+    }
+});
+</script>
+{% endblock %}
