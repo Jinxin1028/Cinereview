@@ -39,7 +39,7 @@
                             data-movie-id="{{ movie.id }}"
                             aria-label="{{ 'Unlike' if is_liked else 'Like' }} this movie">
                         <i class="bi bi-hand-thumbs-up{% if is_liked %}-fill{% endif %}"></i>
-                        <span class="ms-1" id="like-count">{{ movie.likes|length }}</span>
+                        <span class="ms-1" id="like-count">{{ movie.liked_by.count() }}</span>
                     </button>
 
                     <button id="watchlist-btn" class="btn btn-outline-success"
@@ -238,11 +238,11 @@
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center">
                             Likes
-                            <span class="badge bg-warning rounded-pill" id="sidebar-like-count">{{ movie.likes|length }}</span>
+                            <span class="badge bg-warning rounded-pill" id="sidebar-like-count">{{ movie.liked_by.count() }}</span>
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center">
                             On Watchlists
-                            <span class="badge bg-info rounded-pill">{{ movie.watchlists|length }}</span>
+                            <span class="badge bg-info rounded-pill">{{ movie.in_watchlists.count() }}</span>
                         </li>
                     </ul>
                 </div>

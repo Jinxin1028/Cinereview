@@ -41,6 +41,11 @@ class DevelopmentConfig(Config):
     DEBUG = True
     SQLALCHEMY_ECHO = False
 
+    REMEMBER_COOKIE_DURATION = timedelta(days=30)  # 添加：记住我功能持续时间
+    REMEMBER_COOKIE_REFRESH_EACH_REQUEST = True  # 添加：每次请求刷新cookie
+    REMEMBER_COOKIE_SECURE = False  # 开发环境设为False，生产环境设为True
+    REMEMBER_COOKIE_HTTPONLY = True
+    REMEMBER_COOKIE_SAMESITE = 'Lax'
 
 class ProductionConfig(Config):
     DEBUG = False

@@ -65,7 +65,7 @@
     {
         "title": "The Matrix",
         "year": 1999,
-        "director": "The Wachowskis",
+        "director": "Lana Wachowski, Lilly Wachowski",
         "plot": "A computer hacker learns from mysterious rebels about the true nature of his reality and his role in the war against its controllers.",
         "runtime": 136,
         "genres": ["Action", "Science Fiction"],
@@ -75,7 +75,7 @@
         "title": "Forrest Gump",
         "year": 1994,
         "director": "Robert Zemeckis",
-        "plot": "The presidencies of Kennedy and Johnson, the events of Vietnam, Watergate and other historical events unfold from the perspective of an Alabama man with an IQ of 75, whose only desire is to be reunited with his childhood sweetheart.",
+        "plot": "The presidencies of Kennedy and Johnson, the events of Vietnam, Watergate, and other historical events unfold from the perspective of an Alabama man with an IQ of 75, whose only desire is to be reunited with his childhood sweetheart.",
         "runtime": 142,
         "genres": ["Drama", "Romance"],
         "poster_url": "https://image.tmdb.org/t/p/w500/arw2vcBveWOVZr6pxd9XTd1TdQa.jpg"
@@ -133,5 +133,140 @@
         "runtime": 88,
         "genres": ["Animation", "Adventure", "Drama"],
         "poster_url": "https://image.tmdb.org/t/p/w500/bKPtXn9n4M4s8vvZrbw40mYsefB.jpg"
+    },
+    {
+        "title": "Titanic",
+        "year": 1997,
+        "director": "James Cameron",
+        "plot": "A seventeen-year-old aristocrat falls in love with a kind but poor artist aboard the luxurious, ill-fated R.M.S. Titanic.",
+        "runtime": 195,
+        "genres": ["Drama", "Romance"],
+        "poster_url": "https://image.tmdb.org/t/p/w500/9xjZS2rlVxm8SFx8kPC3aIGCOYQ.jpg"
+    },
+    {
+        "title": "Avengers: Endgame",
+        "year": 2019,
+        "director": "Anthony Russo, Joe Russo",
+        "plot": "After the devastating events of Infinity War, the Avengers assemble once more in order to reverse Thanos' actions and restore balance to the universe.",
+        "runtime": 181,
+        "genres": ["Action", "Adventure", "Science Fiction"],
+        "poster_url": "https://image.tmdb.org/t/p/w500/or06FN3Dka5tukK1e9sl16pB3iy.jpg"
+    },
+    {
+        "title": "The Social Network",
+        "year": 2010,
+        "director": "David Fincher",
+        "plot": "As Harvard student Mark Zuckerberg creates the social networking site that would become known as Facebook, he is sued by the twins who claimed he stole their idea and by the co-founder who was later squeezed out of the business.",
+        "runtime": 120,
+        "genres": ["Biography", "Drama"],
+        "poster_url": "https://image.tmdb.org/t/p/w500/ok5Wh8385Kgblq9MSU4VGvazeMH.jpg"
+    },
+    {
+        "title": "Jurassic Park",
+        "year": 1993,
+        "director": "Steven Spielberg",
+        "plot": "A pragmatic paleontologist visiting an almost complete theme park is tasked with protecting a couple of kids after a power failure causes the park's cloned dinosaurs to run loose.",
+        "runtime": 127,
+        "genres": ["Adventure", "Science Fiction", "Thriller"],
+        "poster_url": "https://image.tmdb.org/t/p/w500/oU7Oq2kFAAlGqbU4VoAE36g4oI6.jpg"
+    },
+    {
+        "title": "Star Wars: Episode V - The Empire Strikes Back",
+        "year": 1980,
+        "director": "Irvin Kershner",
+        "plot": "After the Rebels are brutally overpowered by the Empire on the ice planet Hoth, Luke Skywalker begins Jedi training with Yoda, while his friends are pursued by Darth Vader and a bounty hunter named Boba Fett all over the galaxy.",
+        "runtime": 124,
+        "genres": ["Action", "Adventure", "Fantasy"],
+        "poster_url": "https://image.tmdb.org/t/p/w500/7BuH8itoSrLExs2YZSsM01Qk2no.jpg"
+    },
+    {
+        "title": "La La Land",
+        "year": 2016,
+        "director": "Damien Chazelle",
+        "plot": "While navigating their careers in Los Angeles, a pianist and an actress fall in love while attempting to reconcile their aspirations for the future.",
+        "runtime": 128,
+        "genres": ["Comedy", "Drama", "Music"],
+        "poster_url": "https://image.tmdb.org/t/p/w500/uDO8zWDhfWwoFdKS4fzkUJt0Rf0.jpg"
+    },
+    {
+        "title": "Get Out",
+        "year": 2017,
+        "director": "Jordan Peele",
+        "plot": "A young African-American visits his white girlfriend's parents for the weekend, where his simmering uneasiness about their reception of him eventually reaches a boiling point.",
+        "runtime": 104,
+        "genres": ["Horror", "Mystery", "Thriller"],
+        "poster_url": "https://image.tmdb.org/t/p/w500/tFXcEccSQMf3lfhfXKSU9iRBpa3.jpg"
+    },
+    {
+        "title": "The Truman Show",
+        "year": 1998,
+        "director": "Peter Weir",
+        "plot": "An insurance salesman discovers his whole life is actually a reality TV show.",
+        "runtime": 103,
+        "genres": ["Comedy", "Drama", "Science Fiction"],
+        "poster_url": "https://image.tmdb.org/t/p/w500/EelZzudHRvJmjWccWscN1S5vmI.jpg"
+    },
+    {
+        "title": "Schindler's List",
+        "year": 1993,
+        "director": "Steven Spielberg",
+        "plot": "In German-occupied Poland during World War II, industrialist Oskar Schindler gradually becomes concerned for his Jewish workforce after witnessing their persecution by the Nazis.",
+        "runtime": 195,
+        "genres": ["Biography", "Drama", "History"],
+        "poster_url": "https://image.tmdb.org/t/p/w500/sF1U4EUQS8YHUYjNl3pMGNIQyr0.jpg"
+    },
+    {
+        "title": "Back to the Future",
+        "year": 1985,
+        "director": "Robert Zemeckis",
+        "plot": "Marty McFly, a 17-year-old high school student, is accidentally sent thirty years into the past in a time-traveling DeLorean invented by his close friend, the maverick scientist Doc Brown.",
+        "runtime": 116,
+        "genres": ["Adventure", "Comedy", "Science Fiction"],
+        "poster_url": "https://image.tmdb.org/t/p/w500/7lyBcpYB0Qt8gYhXYaEZUNlNQAv.jpg"
+    },
+    {
+        "title": "The Grand Budapest Hotel",
+        "year": 2014,
+        "director": "Wes Anderson",
+        "plot": "A writer encounters the owner of an aging high-class hotel, who tells him of his early years serving as a lobby boy in the hotel's glorious years under an exceptional concierge.",
+        "runtime": 99,
+        "genres": ["Adventure", "Comedy", "Drama"],
+        "poster_url": "https://image.tmdb.org/t/p/w500/eWdyYQreja6JGCzqHWXpWHDrrPo.jpg"
+    },
+    {
+        "title": "Fight Club",
+        "year": 1999,
+        "director": "David Fincher",
+        "plot": "An insomniac office worker and a devil-may-care soap maker form an underground fight club that evolves into much more.",
+        "runtime": 139,
+        "genres": ["Drama"],
+        "poster_url": "https://image.tmdb.org/t/p/w500/pB8BM7pdSp6B6Ih7QZ4DrQ3PmJK.jpg"
+    },
+    {
+        "title": "Whiplash",
+        "year": 2014,
+        "director": "Damien Chazelle",
+        "plot": "A promising young drummer enrolls at a cut-throat music conservatory where his dreams of greatness are mentored by an instructor who will stop at nothing to realize a student's potential.",
+        "runtime": 106,
+        "genres": ["Drama", "Music"],
+        "poster_url": "https://image.tmdb.org/t/p/w500/7fn624j5lj3xTme2SgiLCeuedmO.jpg"
+    },
+    {
+        "title": "Toy Story",
+        "year": 1995,
+        "director": "John Lasseter",
+        "plot": "A cowboy doll is profoundly threatened and jealous when a new spaceman figure supplants him as top toy in a boy's room.",
+        "runtime": 81,
+        "genres": ["Animation", "Adventure", "Comedy"],
+        "poster_url": "https://image.tmdb.org/t/p/w500/uXDfjJbdP4ijW5hWSBrPrlKpxab.jpg"
+    },
+    {
+        "title": "The Departed",
+        "year": 2006,
+        "director": "Martin Scorsese",
+        "plot": "An undercover cop and a mole in the police attempt to identify each other while infiltrating an Irish gang in South Boston.",
+        "runtime": 151,
+        "genres": ["Crime", "Drama", "Thriller"],
+        "poster_url": "https://image.tmdb.org/t/p/w500/nT97ifVT2J1yMQmeq20Qblg61T.jpg"
     }
 ]

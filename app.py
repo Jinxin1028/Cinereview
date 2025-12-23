@@ -29,6 +29,7 @@ def create_app(config_name='default'):
     login_manager.login_view = 'login'
     login_manager.login_message = 'Please log in to access this page.'
     login_manager.login_message_category = 'info'
+    login_manager.refresh_view = 'login'
 
     # Create tables and load initial data
     with app.app_context():
@@ -49,9 +50,12 @@ def load_initial_data(app):
         'Thriller', 'War', 'Western'
     ]
 
+    # 创建流派字典，方便后续查找
+    genre_objects = {}
     for genre_name in genres:
         genre = Genre(name=genre_name)
         db.session.add(genre)
+        genre_objects[genre_name] = genre
 
     db.session.commit()
 
@@ -69,16 +73,22 @@ def load_initial_data(app):
                     runtime=movie_data.get('runtime'),
                     poster_url=movie_data.get('poster_url')
                 )
+
+                # 添加电影的流派
+                for genre_name in movie_data.get('genres', []):
+                    genre = genre_objects.get(genre_name)
+                    if genre:
+                        movie.genres.append(genre)
+
                 db.session.add(movie)
         db.session.commit()
-
 
 app = create_app()
 
 
 @login_manager.user_loader
 def load_user(user_id):
-    return User.query.get(int(user_id))
+    return db.session.get(User, int(user_id))
 
 
 # Context processors
@@ -354,13 +364,16 @@ def like_movie(movie_id):
             db.session.execute(stmt)
             db.session.commit()
 
-            # 重新加载电影以获取更新后的点赞数
-            movie = Movie.query.options(joinedload(Movie.liked_by)).get(movie_id)
+            # 获取更新后的点赞数量
+            from sqlalchemy import func
+            likes_count = db.session.query(func.count(user_likes.c.user_id))\
+                .filter(user_likes.c.movie_id == movie_id)\
+                .scalar()
 
             return jsonify({
                 'success': True,
                 'action': 'liked',
-                'new_likes_count': len(movie.liked_by)
+                'new_likes_count': likes_count
             })
     else:  # unlike
         if current_user.is_liking_movie(movie):
@@ -371,21 +384,29 @@ def like_movie(movie_id):
             db.session.execute(stmt)
             db.session.commit()
 
-            # 重新加载电影以获取更新后的点赞数
-            movie = Movie.query.options(joinedload(Movie.liked_by)).get(movie_id)
+            # 获取更新后的点赞数量
+            from sqlalchemy import func
+            likes_count = db.session.query(func.count(user_likes.c.user_id))\
+                .filter(user_likes.c.movie_id == movie_id)\
+                .scalar()
 
             return jsonify({
                 'success': True,
                 'action': 'unliked',
-                'new_likes_count': len(movie.liked_by)
+                'new_likes_count': likes_count
             })
+
+    # 如果无需更改，获取当前点赞数量
+    from sqlalchemy import func
+    current_likes_count = db.session.query(func.count(user_likes.c.user_id))\
+        .filter(user_likes.c.movie_id == movie_id)\
+        .scalar()
 
     return jsonify({
         'success': False,
         'message': '无需更改',
-        'current_likes_count': len(movie.liked_by)
+        'current_likes_count': current_likes_count
     })
-
 
 @app.route('/movie/<int:movie_id>/watchlist', methods=['POST'])
 @login_required
@@ -521,6 +542,7 @@ def login():
         ).first()
 
         if user and user.check_password(form.password.data):
+            # 修复：正确传递 remember_me 参数
             login_user(user, remember=form.remember_me.data)
             user.last_login = datetime.utcnow()
             db.session.commit()
@@ -533,7 +555,6 @@ def login():
             flash('Invalid username/email or password', 'error')
 
     return render_template('login.html', form=form)
-
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
