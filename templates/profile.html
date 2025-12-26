@@ -3,15 +3,17 @@
 {% block title %}My Profile - CineReview{% endblock %}
 
 {% block content %}
+<!-- PROFILE PAGE CONTENT -->
 <div class="profile-page">
-    <!-- Profile Header -->
+    <!-- PROFILE HEADER SECTION -->
     <div class="row mb-5">
         <div class="col-md-4">
+            <!-- USER PROFILE CARD -->
             <div class="card">
                 <div class="card-body text-center">
                     <div class="mb-3">
                         <div class="avatar-lg mx-auto mb-3" aria-hidden="true">
-                            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" 
+                            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center"
                                  style="width: 100px; height: 100px; font-size: 2.5rem;">
                                 {{ current_user.username[0]|upper }}
                             </div>
@@ -23,7 +25,8 @@
                             Member since {{ current_user.created_at.strftime('%B %Y') }}
                         </p>
                     </div>
-                    
+
+                    <!-- ACTION BUTTONS -->
                     <div class="d-grid gap-2">
                         <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editProfileModal">
                             <i class="bi bi-pencil-square me-2"></i>Edit Profile
@@ -34,8 +37,8 @@
                     </div>
                 </div>
             </div>
-            
-            <!-- User Stats -->
+
+            <!-- USER STATISTICS -->
             <div class="card mt-3">
                 <div class="card-body">
                     <h3 class="h6 card-title mb-3">Your Stats</h3>
@@ -63,45 +66,50 @@
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center px-0">
                             <span>
-                                <i class="bi bi-star me-2 text-info"></i>
+                                <i class="bi bi-star me-2 text-info-emphasis"></i>
                                 Average Rating
                             </span>
-                            <span class="badge bg-info rounded-pill">{{ "%.1f"|format(user_stats.average_rating) }}/5</span>
+                            <span class="badge rounded-pill" style="background-color: #087990; color: white;">{{ "%.1f"|format(user_stats.average_rating) }}/5</span>
                         </li>
                     </ul>
                 </div>
             </div>
         </div>
-        
+
+        <!-- MAIN CONTENT COLUMN -->
         <div class="col-md-8">
-            <!-- Tabs Navigation -->
+            <!-- TAB NAVIGATION -->
             <nav class="nav nav-tabs mb-4" id="profileTabs" role="tablist">
-                <button class="nav-link active" id="reviews-tab" data-bs-toggle="tab" 
-                        data-bs-target="#reviews" type="button" role="tab" 
+                <button class="nav-link active border-primary border-2 text-primary-emphasis fw-semibold"
+                        id="reviews-tab" data-bs-toggle="tab"
+                        data-bs-target="#reviews" type="button" role="tab"
                         aria-controls="reviews" aria-selected="true">
                     <i class="bi bi-chat-square-text me-2"></i>My Reviews
                 </button>
-                <button class="nav-link" id="likes-tab" data-bs-toggle="tab" 
-                        data-bs-target="#likes" type="button" role="tab" 
+                <button class="nav-link border-primary border-2 text-primary-emphasis fw-semibold"
+                        id="likes-tab" data-bs-toggle="tab"
+                        data-bs-target="#likes" type="button" role="tab"
                         aria-controls="likes" aria-selected="false">
                     <i class="bi bi-hand-thumbs-up me-2"></i>Liked Movies
                 </button>
-                <button class="nav-link" id="watchlist-tab" data-bs-toggle="tab" 
-                        data-bs-target="#watchlist" type="button" role="tab" 
+                <button class="nav-link border-primary border-2 text-primary-emphasis fw-semibold"
+                        id="watchlist-tab" data-bs-toggle="tab"
+                        data-bs-target="#watchlist" type="button" role="tab"
                         aria-controls="watchlist" aria-selected="false">
                     <i class="bi bi-bookmark me-2"></i>My Watchlist
                 </button>
-                <button class="nav-link" id="recommendations-tab" data-bs-toggle="tab" 
-                        data-bs-target="#recommendations" type="button" role="tab" 
+                <button class="nav-link border-primary border-2 text-primary-emphasis fw-semibold"
+                        id="recommendations-tab" data-bs-toggle="tab"
+                        data-bs-target="#recommendations" type="button" role="tab"
                         aria-controls="recommendations" aria-selected="false">
                     <i class="bi bi-lightbulb me-2"></i>Recommendations
                 </button>
             </nav>
-            
-            <!-- Tab Content -->
+
+            <!-- TAB CONTENT -->
             <div class="tab-content" id="profileTabContent">
-                <!-- Reviews Tab -->
-                <div class="tab-pane fade show active" id="reviews" role="tabpanel" 
+                <!-- REVIEWS TAB -->
+                <div class="tab-pane fade show active" id="reviews" role="tabpanel"
                      aria-labelledby="reviews-tab" tabindex="0">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h2 class="h5 mb-0">My Reviews</h2>
@@ -168,15 +176,16 @@
                     {% endif %}
 
                     {% else %}
-                    <div class="alert alert-info" role="alert">
+                    <div class="alert alert-warning border-warning border-2 bg-warning-subtle text-warning-emphasis" role="alert">
                         <i class="bi bi-info-circle me-2"></i>
                         You haven't written any reviews yet.
-                        <a href="{{ url_for('movies') }}" class="alert-link">Browse movies</a> to get started!
+                        <a href="{{ url_for('movies') }}" class="alert-link fw-semibold text-warning-emphasis">Browse movies</a> to get started!
                     </div>
+
                     {% endif %}
                 </div>
 
-                <!-- Likes Tab -->
+                <!-- LIKES TAB -->
                 <div class="tab-pane fade" id="likes" role="tabpanel"
                      aria-labelledby="likes-tab" tabindex="0">
                     <div class="d-flex justify-content-between align-items-center mb-3">
@@ -204,9 +213,9 @@
                                                     {{ movie.genres[:2]|map(attribute='name')|join(', ') }}
                                                 {% endif %}
                                             </p>
-                                            <div class="rating-stars small mb-2">
-                                                <i class="bi bi-star-fill text-warning"></i>
-                                                <span class="ms-1">{{ "%.1f"|format(movie.average_rating or 0) }}/5</span>
+                                            <div class="rating-stars small">
+                                                <i class="bi bi-star-fill" style="color: #b45309;"></i>
+                                                <span class="fw-semibold" style="color: #92400e;">{{ "%.1f"|format(movie.average_rating or 0) }}</span>
                                             </div>
                                             <a href="{{ url_for('movie_detail', movie_id=movie.id) }}"
                                                class="btn btn-sm btn-outline-primary w-100">
@@ -220,14 +229,14 @@
                         {% endfor %}
                     </div>
                     {% else %}
-                    <div class="alert alert-info" role="alert">
+                    <div class="alert alert-warning border-warning border-2 bg-warning-subtle text-warning-emphasis" role="alert">
                         <i class="bi bi-info-circle me-2"></i>
                         You haven't liked any movies yet. Start browsing to find movies you love!
                     </div>
                     {% endif %}
                 </div>
 
-                <!-- Watchlist Tab -->
+                <!-- WATCHLIST TAB -->
                 <div class="tab-pane fade" id="watchlist" role="tabpanel"
                      aria-labelledby="watchlist-tab" tabindex="0">
                     <div class="d-flex justify-content-between align-items-center mb-3">
@@ -304,14 +313,14 @@
                         </table>
                     </div>
                     {% else %}
-                    <div class="alert alert-info" role="alert">
+                    <div class="alert alert-warning border-warning border-2 bg-warning-subtle text-warning-emphasis" role="alert">
                         <i class="bi bi-info-circle me-2"></i>
                         Your watchlist is empty. Add movies you want to watch later!
                     </div>
                     {% endif %}
                 </div>
 
-                <!-- Recommendations Tab -->
+                <!-- RECOMMENDATIONS TAB -->
                 <div class="tab-pane fade" id="recommendations" role="tabpanel"
                      aria-labelledby="recommendations-tab" tabindex="0">
                     <div class="d-flex justify-content-between align-items-center mb-3">
@@ -355,14 +364,14 @@
                         {% endfor %}
                     </div>
 
-                    <div class="alert alert-info mt-4" role="alert">
+                    <div class="alert alert-warning border-warning border-2 bg-warning-subtle text-warning-emphasis mt-4" role="alert">
                         <i class="bi bi-lightbulb me-2"></i>
                         <strong>How recommendations work:</strong>
                         These movies are recommended based on your liked movies and reviews.
                         The more you use CineReview, the better your recommendations will be!
                     </div>
                     {% else %}
-                    <div class="alert alert-info" role="alert">
+                    <div class="alert alert-warning border-warning border-2 bg-warning-subtle text-warning-emphasis" role="alert">
                         <i class="bi bi-info-circle me-2"></i>
                         We need more information about your preferences to provide recommendations.
                         Start by liking and reviewing movies!
@@ -374,7 +383,7 @@
     </div>
 </div>
 
-<!-- Edit Profile Modal -->
+<!-- EDIT PROFILE MODAL -->
 <div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -415,14 +424,12 @@
 
 {% block scripts %}
 <script>
-// Get CSRF Token
 function getCSRFToken() {
     const tokenElement = document.querySelector('meta[name="csrf-token"]');
     if (tokenElement) {
         return tokenElement.getAttribute('content');
     }
 
-    // Fallback: look for CSRF token in cookies or form
     const cookieToken = getCookie('csrf_token');
     if (cookieToken) return cookieToken;
 
@@ -433,7 +440,6 @@ function getCSRFToken() {
     return '';
 }
 
-// Helper: Get Cookie Value
 function getCookie(name) {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
@@ -441,7 +447,6 @@ function getCookie(name) {
     return null;
 }
 
-// Simple notification function
 function showNotification(message, type = 'info') {
     const alertDiv = document.createElement('div');
     alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
@@ -450,12 +455,10 @@ function showNotification(message, type = 'info') {
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     `;
 
-    // Add to page
     const container = document.querySelector('.container.mt-5');
     if (container) {
         container.insertBefore(alertDiv, container.firstChild);
 
-        // Auto remove after 5 seconds
         setTimeout(() => {
             if (alertDiv.parentNode) {
                 alertDiv.remove();
@@ -465,7 +468,6 @@ function showNotification(message, type = 'info') {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    // 为个人主页的点赞按钮添加事件监听器
     const profileLikeButtons = document.querySelectorAll('.profile-like-review-btn');
 
     profileLikeButtons.forEach(button => {
@@ -482,7 +484,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Watchlist removal
     const watchlistBtns = document.querySelectorAll('.watchlist-remove-btn');
     watchlistBtns.forEach(btn => {
         btn.addEventListener('click', function() {
@@ -502,7 +503,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (data.success) {
                     row.remove();
 
-                    // Update count
                     const watchlistCount = document.querySelector('#watchlist-tab .badge');
                     if (watchlistCount) {
                         watchlistCount.textContent = parseInt(watchlistCount.textContent) - 1;
@@ -514,7 +514,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Tab keyboard navigation
     const tabButtons = document.querySelectorAll('#profileTabs button');
     tabButtons.forEach((button, index) => {
         button.addEventListener('keydown', function(event) {
@@ -541,7 +540,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// 专门为个人主页的评论点赞函数
 function toggleProfileReviewLike(reviewId, button) {
     const csrfToken = getCSRFToken();
     const icon = button.querySelector('i');
@@ -561,7 +559,6 @@ function toggleProfileReviewLike(reviewId, button) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            // 更新按钮状态
             if (data.action === 'liked') {
                 icon.classList.remove('bi-hand-thumbs-up');
                 icon.classList.add('bi-hand-thumbs-up-fill');
@@ -572,12 +569,10 @@ function toggleProfileReviewLike(reviewId, button) {
                 button.setAttribute('aria-label', 'Like this review');
             }
 
-            // 更新按钮内的点赞数
             if (countSpan && data.new_likes_count !== undefined) {
                 countSpan.textContent = data.new_likes_count;
             }
 
-            // 更新列表中的文本点赞数
             const reviewItem = document.getElementById(`profile-review-${reviewId}`);
             if (reviewItem) {
                 const textLikes = reviewItem.querySelector('.profile-text-likes');
@@ -608,18 +603,15 @@ function confirmDeleteReview(reviewId) {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // Find and remove the review from the list
                 const reviewElement = document.getElementById(`profile-review-${reviewId}`);
                 if (reviewElement) {
                     reviewElement.remove();
 
-                    // Update stats
                     const reviewCount = document.querySelector('#reviews-tab .badge');
                     if (reviewCount) {
                         reviewCount.textContent = parseInt(reviewCount.textContent) - 1;
                     }
 
-                    // Show success message
                     showNotification('Review deleted successfully', 'success');
                 }
             }
@@ -639,7 +631,6 @@ function refreshRecommendations() {
         .then(data => {
             if (data.success) {
                 showNotification('Recommendations refreshed', 'success');
-                // In a real app, you would update the recommendations display
                 setTimeout(() => location.reload(), 1000);
             }
         })

@@ -3,22 +3,24 @@
 {% block title %}Register - CineReview{% endblock %}
 
 {% block content %}
+<!-- REGISTRATION FORM -->
 <div class="row justify-content-center">
     <div class="col-md-8 col-lg-7">
         <div class="card shadow">
             <div class="card-body p-4">
                 <div class="text-center mb-4">
-                    <h1 class="h3 mb-3 fw-normal">
+                    <h1 id="register-heading" class="h3 mb-3 fw-normal">
                         <i class="bi bi-person-plus me-2"></i>Join CineReview
                     </h1>
                     <p class="text-muted">Create an account to start reviewing movies and get personalized recommendations</p>
                 </div>
 
+                <!-- REGISTRATION FORM -->
                 <form method="POST" action="{{ url_for('register') }}" id="register-form" aria-labelledby="register-heading">
                     {{ form.hidden_tag() }}
-                    
+
                     <div class="row">
-                        <!-- Username -->
+                        <!-- USERNAME INPUT -->
                         <div class="col-md-6 mb-3">
                             <label for="username" class="form-label required">
                                 <i class="bi bi-person-badge me-1"></i> Username
@@ -34,6 +36,7 @@
                                        placeholder="Choose a username"
                                        value="{{ form.username.data or '' }}"
                                        aria-describedby="username-addon username-help"
+                                       aria-label="Choose a username"
                                        required>
                             </div>
                             <div id="username-help" class="form-text">
@@ -48,7 +51,7 @@
                             {% endif %}
                         </div>
 
-                        <!-- Email -->
+                        <!-- EMAIL INPUT -->
                         <div class="col-md-6 mb-3">
                             <label for="email" class="form-label required">
                                 <i class="bi bi-envelope me-1"></i> Email Address
@@ -64,6 +67,7 @@
                                        placeholder="Enter your email"
                                        value="{{ form.email.data or '' }}"
                                        aria-describedby="email-addon email-help"
+                                       aria-label="Enter your email address"
                                        required>
                             </div>
                             <div id="email-help" class="form-text">
@@ -80,7 +84,7 @@
                     </div>
 
                     <div class="row">
-                        <!-- Password -->
+                        <!-- PASSWORD INPUT -->
                         <div class="col-md-6 mb-3">
                             <label for="password" class="form-label required">
                                 <i class="bi bi-key me-1"></i> Password
@@ -95,7 +99,8 @@
                                        class="form-control"
                                        placeholder="Create a strong password"
                                        value="{{ form.password.data or '' }}"
-                                       aria-describedby="password-help"
+                                       aria-describedby="password-addon password-help"
+                                       aria-label="Create a strong password"
                                        required>
                             </div>
                             <div id="password-help" class="form-text">
@@ -110,7 +115,7 @@
                             {% endif %}
                         </div>
 
-                        <!-- Confirm Password -->
+                        <!-- CONFIRM PASSWORD INPUT -->
                         <div class="col-md-6 mb-3">
                             <label for="confirm_password" class="form-label required">
                                 <i class="bi bi-key-fill me-1"></i> Confirm Password
@@ -125,7 +130,8 @@
                                        class="form-control"
                                        placeholder="Confirm your password"
                                        value="{{ form.confirm_password.data or '' }}"
-                                       aria-describedby="confirm-help"
+                                       aria-describedby="confirm-addon confirm-help"
+                                       aria-label="Confirm your password"
                                        required>
                             </div>
                             <div id="confirm-help" class="form-text">
@@ -141,7 +147,7 @@
                         </div>
                     </div>
 
-                    <!-- Display Name -->
+                    <!-- DISPLAY NAME INPUT -->
                     <div class="mb-3">
                         <label for="display_name" class="form-label">
                             <i class="bi bi-person-vcard me-1"></i> Display Name (Optional)
@@ -155,7 +161,9 @@
                                    id="display_name"
                                    class="form-control {% if form.display_name.errors %}is-invalid{% endif %}"
                                    placeholder="How you want to appear to others"
-                                   value="{{ form.display_name.data or '' }}">
+                                   value="{{ form.display_name.data or '' }}"
+                                   aria-describedby="display-addon display-help"
+                                   aria-label="Enter display name (optional)">
                         </div>
                         <div id="display-help" class="form-text">
                             Leave blank to use your username
@@ -164,12 +172,12 @@
                         <div class="invalid-feedback d-block">
                             {% for error in form.display_name.errors %}
                             <i class="bi bi-exclamation-triangle me-1"></i>{{ error }}
-                            {% endfor %}
+                                {% endfor %}
                         </div>
                         {% endif %}
                     </div>
 
-                    <!-- Terms Agreement -->
+                    <!-- TERMS AGREEMENT -->
                     <div class="mb-4">
                         <div class="form-check">
                             <input type="checkbox"
@@ -177,6 +185,7 @@
                                    id="agree_terms"
                                    class="form-check-input {% if form.agree_terms.errors %}is-invalid{% endif %}"
                                    {% if form.agree_terms.data %}checked{% endif %}
+                                   aria-label="Agree to terms and conditions"
                                    required>
                             <label class="form-check-label" for="agree_terms">
                                 I agree to the
@@ -194,13 +203,14 @@
                         </div>
                     </div>
 
-                    <!-- Submit Button -->
+                    <!-- SUBMIT BUTTON -->
                     <div class="d-grid gap-2 mb-3">
-                        <button type="submit" class="btn btn-primary btn-lg">
+                        <button type="submit" class="btn btn-primary btn-lg" aria-label="Create account">
                             <i class="bi bi-person-plus me-2"></i>Create Account
                         </button>
                     </div>
 
+                    <!-- LOGIN LINK -->
                     <div class="text-center">
                         <p class="mb-0">
                             Already have an account?
@@ -211,7 +221,7 @@
             </div>
         </div>
 
-        <!-- Features Card -->
+        <!-- FEATURES CARD -->
         <div class="card mt-4 border-success">
             <div class="card-body">
                 <h3 class="h5 card-title mb-3">
@@ -255,7 +265,7 @@
             </div>
         </div>
 
-        <!-- Accessibility Info -->
+        <!-- ACCESSIBILITY INFO -->
         <div class="mt-4">
             <details class="border rounded p-3">
                 <summary class="fw-semibold">
@@ -280,29 +290,25 @@
 {% block scripts %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Form validation
     const form = document.getElementById('register-form');
     const usernameInput = document.getElementById('username');
-    
+
     form.addEventListener('submit', function(event) {
         if (!form.checkValidity()) {
             event.preventDefault();
             event.stopPropagation();
-            
-            // Focus on first invalid field
+
             const invalidField = form.querySelector(':invalid');
             if (invalidField) {
                 invalidField.focus();
-                
-                // Announce error to screen reader
+
                 if (typeof Accessibility !== 'undefined') {
                     Accessibility.announceToScreenReader('Please correct the errors in the form', 'assertive');
                 }
             }
         }
     });
-    
-    // Focus on username field on load
+
     if (usernameInput) {
         setTimeout(() => usernameInput.focus(), 100);
     }

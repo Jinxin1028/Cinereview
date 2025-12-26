@@ -3,37 +3,41 @@
 {% block title %}{{ movie.title }} - CineReview{% endblock %}
 
 {% block content %}
+<!-- MOVIE DETAIL PAGE -->
 <div class="movie-detail">
-    <!-- Movie Header -->
+    <!-- MOVIE HEADER SECTION -->
     <div class="row mb-5">
         <div class="col-md-4">
+            <!-- MOVIE POSTER -->
             <div class="card border-0 shadow-sm">
-                <img src="{{ movie.poster_url or 'https://via.placeholder.com/400x600?text=No+Poster' }}" 
-                     class="card-img-top" alt="{{ movie.title }} movie poster" 
+                <img src="{{ movie.poster_url or 'https://via.placeholder.com/400x600?text=No+Poster' }}"
+                     class="card-img-top" alt="{{ movie.title }} movie poster"
                      style="max-height: 600px; object-fit: cover;">
             </div>
         </div>
         <div class="col-md-8">
+            <!-- BREADCRUMB NAVIGATION -->
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Home</a></li>
-                    <li class="breadcrumb-item"><a href="{{ url_for('movies') }}">Movies</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('index') }}" class="text-primary-emphasis fw-medium">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('movies') }}" class="text-primary-emphasis fw-medium">Movies</a></li>
                     <li class="breadcrumb-item active" aria-current="page">{{ movie.title }}</li>
                 </ol>
             </nav>
-            
+
+            <!-- MOVIE TITLE AND INFO -->
             <h1 class="display-5 fw-bold mb-2">{{ movie.title }} <span class="text-muted">({{ movie.year }})</span></h1>
-            
+
+            <!-- RATING AND ACTION BUTTONS -->
             <div class="d-flex flex-wrap align-items-center gap-3 mb-3">
-                <!-- Rating Badge -->
                 <div class="rating-badge">
                     <span class="badge bg-warning text-dark fs-6">
                         <i class="bi bi-star-fill"></i> {{ "%.1f"|format(movie.average_rating or 0) }}/5
                     </span>
                     <span class="ms-2 small text-muted">({{ movie.reviews|length }} reviews)</span>
                 </div>
-                
-                <!-- Action Buttons -->
+
+                <!-- ACTION BUTTONS GROUP -->
                 <div class="btn-group" role="group" aria-label="Movie actions">
                     <button id="like-btn" class="btn btn-outline-primary"
                             data-movie-id="{{ movie.id }}"
@@ -42,7 +46,7 @@
                         <span class="ms-1" id="like-count">{{ movie.liked_by.count() }}</span>
                     </button>
 
-                    <button id="watchlist-btn" class="btn btn-outline-success"
+                    <button id="watchlist-btn" class="btn btn-outline-success border-success-emphasis text-success-emphasis"
                             data-movie-id="{{ movie.id }}"
                             aria-label="{{ 'Remove from' if in_watchlist else 'Add to' }} watchlist">
                         <i class="bi bi-bookmark{% if in_watchlist %}-fill{% endif %}"></i>
@@ -51,7 +55,7 @@
                 </div>
             </div>
 
-            <!-- Movie Metadata -->
+            <!-- MOVIE METADATA -->
             <div class="row mb-4">
                 <div class="col-md-6">
                     <dl class="row">
@@ -83,13 +87,13 @@
                 </div>
             </div>
 
-            <!-- Synopsis -->
+            <!-- SYNOPSIS -->
             <div class="mb-4">
                 <h3 class="h5">Synopsis</h3>
                 <p class="lead">{{ movie.plot or 'No synopsis available.' }}</p>
             </div>
 
-            <!-- Cast -->
+            <!-- CAST INFORMATION -->
             {% if movie.cast %}
             <div class="mb-4">
                 <h3 class="h5">Cast</h3>
@@ -99,10 +103,11 @@
         </div>
     </div>
 
-    <!-- Reviews Section -->
+    <!-- REVIEWS SECTION -->
     <div class="row">
+        <!-- MAIN CONTENT COLUMN -->
         <div class="col-lg-8">
-            <!-- Add Review Form (for authenticated users) -->
+            <!-- ADD REVIEW FORM -->
             {% if current_user.is_authenticated %}
             <div class="card mb-4">
                 <div class="card-body">
@@ -133,13 +138,14 @@
                 </div>
             </div>
             {% else %}
-            <div class="alert alert-info mb-4" role="alert">
+            <!-- LOGIN PROMPT -->
+            <div class="alert alert-info mb-4 border-info-subtle bg-info-subtle" role="alert">
                 <i class="bi bi-info-circle me-2"></i>
-                Please <a href="{{ url_for('login') }}" class="alert-link">log in</a> to write a review.
+                Please <a href="{{ url_for('login') }}" class="alert-link fw-semibold text-info-emphasis">log in</a> to write a review.
             </div>
             {% endif %}
 
-            <!-- Reviews List -->
+            <!-- REVIEWS LIST -->
             <h3 class="h4 mb-4">Reviews ({{ movie.reviews|length }})</h3>
 
             {% if movie.reviews %}
@@ -190,15 +196,17 @@
                 {% endfor %}
             </div>
             {% else %}
-            <div class="alert alert-secondary" role="alert">
+            <!-- NO REVIEWS MESSAGE -->
+            <div class="alert border-0" role="alert" style="background-color: #fef3cd; border-left: 4px solid #f59e0b; color: #92400e;">
                 <i class="bi bi-chat-square-text me-2"></i>
                 No reviews yet. Be the first to review this movie!
             </div>
             {% endif %}
         </div>
 
-        <!-- Similar Movies Sidebar -->
+        <!-- SIDEBAR COLUMN -->
         <div class="col-lg-4">
+            <!-- SIMILAR MOVIES -->
             <div class="card mb-4">
                 <div class="card-body">
                     <h3 class="h5 card-title">Similar Movies</h3>
@@ -223,7 +231,7 @@
                 </div>
             </div>
 
-            <!-- Movie Stats -->
+            <!-- MOVIE STATISTICS -->
             <div class="card">
                 <div class="card-body">
                     <h3 class="h5 card-title">Movie Statistics</h3>
@@ -242,7 +250,7 @@
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center">
                             On Watchlists
-                            <span class="badge bg-info rounded-pill">{{ movie.in_watchlists.count() }}</span>
+                            <span class="badge rounded-pill" style="background-color: #087990; color: white;">{{ movie.in_watchlists.count() }}</span>
                         </li>
                     </ul>
                 </div>
@@ -253,7 +261,6 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="{{ url_for('static', filename='js/likes.js') }}"></script>
 <script>
 function confirmDeleteReview(reviewId) {
     if (confirm('Are you sure you want to delete this review? This action cannot be undone.')) {
@@ -268,7 +275,6 @@ function confirmDeleteReview(reviewId) {
         .then(data => {
             if (data.success) {
                 document.getElementById(`review-${reviewId}`).remove();
-                // Show success message
                 const alertDiv = document.createElement('div');
                 alertDiv.className = 'alert alert-success alert-dismissible fade show';
                 alertDiv.innerHTML = `

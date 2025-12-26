@@ -3,15 +3,18 @@
 {% block title %}Movies - CineReview{% endblock %}
 
 {% block content %}
+<!-- MOVIES PAGE CONTENT -->
 <div class="movies-page">
+    <!-- PAGE HEADER -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="h2">Browse Movies</h1>
         <div class="d-flex gap-2">
             <div class="dropdown">
-                <button class="btn btn-outline-secondary dropdown-toggle" type="button" 
+                <button class="btn btn-outline-dark dropdown-toggle" type="button"
                         data-bs-toggle="dropdown" aria-expanded="false" aria-label="Sort movies by">
                     <i class="bi bi-sort-down"></i> Sort By
                 </button>
+
                 <ul class="dropdown-menu">
                     <li><a class="dropdown-item" href="?sort=title">Title A-Z</a></li>
                     <li><a class="dropdown-item" href="?sort=-title">Title Z-A</a></li>
@@ -24,7 +27,7 @@
         </div>
     </div>
 
-    <!-- Filters -->
+    <!-- FILTERS SECTION -->
     <div class="card mb-4">
         <div class="card-body">
             <form method="GET" class="row g-3">
@@ -69,7 +72,7 @@
         </div>
     </div>
 
-    <!-- Movies Grid -->
+    <!-- MOVIES GRID -->
     {% if movies.items %}
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-4">
         {% for movie in movies.items %}
@@ -119,7 +122,8 @@
         </div>
         {% endfor %}
     </div>
-    <!-- Pagination -->
+
+    <!-- PAGINATION -->
     {% if movies.pages > 1 %}
     <nav aria-label="Movie pages" class="mt-5">
         <ul class="pagination justify-content-center">
@@ -168,36 +172,38 @@
         </ul>
     </nav>
     {% endif %}
-    
+
     {% else %}
+    <!-- NO RESULTS MESSAGE -->
     <div class="alert alert-info" role="alert">
         <i class="bi bi-info-circle me-2"></i>
         No movies found matching your criteria. Try adjusting your filters.
     </div>
     {% endif %}
-    
-    <!-- Statistics -->
+
+    <!-- STATISTICS SECTION -->
     <div class="card mt-5">
         <div class="card-body">
             <div class="row text-center">
                 <div class="col-md-3">
-                    <div class="display-6 fw-bold text-primary">{{ total_movies }}</div>
+                    <div class="display-6 fw-bold text-primary-emphasis">{{ total_movies }}</div>
                     <p class="text-muted">Total Movies</p>
                 </div>
                 <div class="col-md-3">
-                    <div class="display-6 fw-bold text-success">{{ total_reviews }}</div>
+                    <div class="display-6 fw-bold text-success-emphasis">{{ total_reviews }}</div>
                     <p class="text-muted">Total Reviews</p>
                 </div>
                 <div class="col-md-3">
-                    <div class="display-6 fw-bold text-warning">{{ "%.1f"|format(avg_rating) }}</div>
+                    <div class="display-6 fw-bold text-warning-emphasis">{{ "%.1f"|format(avg_rating) }}</div>
                     <p class="text-muted">Average Rating</p>
                 </div>
                 <div class="col-md-3">
-                    <div class="display-6 fw-bold text-info">{{ total_genres }}</div>
+                    <div class="display-6 fw-bold text-info-emphasis">{{ total_genres }}</div>
                     <p class="text-muted">Genres</p>
                 </div>
             </div>
         </div>
     </div>
+
 </div>
 {% endblock %}

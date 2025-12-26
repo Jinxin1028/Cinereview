@@ -3,16 +3,18 @@
 {% block title %}Search Results - CineReview{% endblock %}
 
 {% block content %}
+<!-- SEARCH PAGE CONTENT -->
 <div class="search-page">
-    <!-- Search Header -->
+    <!-- SEARCH HEADER -->
     <div class="card mb-4">
         <div class="card-body">
             <h1 class="h4 mb-3">Search Results</h1>
-            
+
+            <!-- SEARCH FORM -->
             <form method="GET" action="{{ url_for('search') }}" class="mb-4" role="search" aria-label="Search movies">
                 <div class="input-group input-group-lg">
-                    <input type="search" class="form-control" name="q" 
-                           placeholder="Search for movies, actors, directors..." 
+                    <input type="search" class="form-control" name="q"
+                           placeholder="Search for movies, actors, directors..."
                            value="{{ query }}" aria-label="Search query">
                     <button class="btn btn-primary" type="submit">
                         <i class="bi bi-search"></i> Search
@@ -25,8 +27,8 @@
                     {% endif %}
                 </div>
             </form>
-            
-            <!-- Search Filters -->
+
+            <!-- ADVANCED FILTERS -->
             <details class="border rounded p-3 mb-3">
                 <summary class="fw-semibold">
                     <i class="bi bi-funnel me-2"></i>Advanced Filters
@@ -34,10 +36,10 @@
                 <div class="mt-3">
                     <form method="GET" action="{{ url_for('search') }}" class="row g-3">
                         <input type="hidden" name="q" value="{{ query }}">
-                        
+
                         <div class="col-md-3">
                             <label for="search_category" class="form-label">Search In</label>
-                            <select class="form-select" id="search_category" name="category" 
+                            <select class="form-select" id="search_category" name="category"
                                     aria-label="Select search category">
                                 <option value="">All Categories</option>
                                 <option value="title" {{ 'selected' if category == 'title' }}>Titles</option>
@@ -47,10 +49,10 @@
                                 <option value="plot" {{ 'selected' if category == 'plot' }}>Descriptions</option>
                             </select>
                         </div>
-                        
+
                         <div class="col-md-3">
                             <label for="search_year" class="form-label">Year</label>
-                            <select class="form-select" id="search_year" name="year" 
+                            <select class="form-select" id="search_year" name="year"
                                     aria-label="Filter by year">
                                 <option value="">Any Year</option>
                                 {% for year in years %}
@@ -60,10 +62,10 @@
                                 {% endfor %}
                             </select>
                         </div>
-                        
+
                         <div class="col-md-3">
                             <label for="search_rating" class="form-label">Minimum Rating</label>
-                            <select class="form-select" id="search_rating" name="min_rating" 
+                            <select class="form-select" id="search_rating" name="min_rating"
                                     aria-label="Filter by minimum rating">
                                 <option value="0">Any Rating</option>
                                 {% for i in range(1, 6) %}
@@ -73,7 +75,7 @@
                                 {% endfor %}
                             </select>
                         </div>
-                        
+
                         <div class="col-md-3 d-flex align-items-end">
                             <button type="submit" class="btn btn-outline-primary w-100">
                                 <i class="bi bi-filter"></i> Apply Filters
@@ -84,24 +86,25 @@
             </details>
         </div>
     </div>
-    
-    <!-- Search Results -->
+
+    <!-- SEARCH RESULTS CONTENT -->
     {% if results %}
     <div class="row">
+        <!-- MAIN RESULTS COLUMN -->
         <div class="col-lg-8">
-            <!-- Movies Results -->
+            <!-- MOVIES RESULTS -->
             <h2 class="h5 mb-3">Movies</h2>
-            
+
             {% if results.movies %}
             <div class="list-group mb-4">
                 {% for movie in results.movies %}
-                <a href="{{ url_for('movie_detail', movie_id=movie.id) }}" 
-                   class="list-group-item list-group-item-action" 
+                <a href="{{ url_for('movie_detail', movie_id=movie.id) }}"
+                   class="list-group-item list-group-item-action"
                    aria-label="{{ movie.title }} ({{ movie.year }}), rating: {{ "%.1f"|format(movie.average_rating or 0) }}, {{ movie.reviews|length }} reviews">
                     <div class="d-flex w-100">
                         <div class="me-3 flex-shrink-0">
-                            <img src="{{ movie.poster_url or 'https://via.placeholder.com/80x120?text=No+Poster' }}" 
-                                 alt="{{ movie.title }} poster" 
+                            <img src="{{ movie.poster_url or 'https://via.placeholder.com/80x120?text=No+Poster' }}"
+                                 alt="{{ movie.title }} poster"
                                  style="width: 80px; height: 120px; object-fit: cover;">
                         </div>
                         <div class="flex-grow-1">
@@ -133,25 +136,25 @@
                 </a>
                 {% endfor %}
             </div>
-            
-            <!-- Movies Pagination -->
+
+            <!-- MOVIES PAGINATION -->
             {% if results.movies.pages > 1 %}
             <nav aria-label="Movies pagination">
                 <ul class="pagination justify-content-center">
                     <li class="page-item {{ 'disabled' if not results.movies.has_prev }}">
-                        <a class="page-link" 
+                        <a class="page-link"
                            href="{{ url_for('search', q=query, category=category, year=year_filter, min_rating=min_rating, page=results.movies.prev_num, _anchor='movies') if results.movies.has_prev else '#' }}"
                            aria-label="Previous page">
                             <span aria-hidden="true">&laquo;</span>
                         </a>
                     </li>
-                    
+
                     {% for page_num in results.movies.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
                         {% if page_num %}
                             <li class="page-item {{ 'active' if page_num == results.movies.page }}">
-                                <a class="page-link" 
+                                <a class="page-link"
                                    href="{{ url_for('search', q=query, category=category, year=year_filter, min_rating=min_rating, page=page_num, _anchor='movies') }}"
-                                   aria-label="Go to page {{ page_num }}" 
+                                   aria-label="Go to page {{ page_num }}"
                                    {{ 'aria-current="page"' if page_num == results.movies.page }}>
                                     {{ page_num }}
                                 </a>
@@ -162,9 +165,9 @@
                             </li>
                         {% endif %}
                     {% endfor %}
-                    
+
                     <li class="page-item {{ 'disabled' if not results.movies.has_next }}">
-                        <a class="page-link" 
+                        <a class="page-link"
                            href="{{ url_for('search', q=query, category=category, year=year_filter, min_rating=min_rating, page=results.movies.next_num, _anchor='movies') if results.movies.has_next else '#' }}"
                            aria-label="Next page">
                             <span aria-hidden="true">&raquo;</span>
@@ -173,15 +176,15 @@
                 </ul>
             </nav>
             {% endif %}
-            
+
             {% else %}
-            <div class="alert alert-info" role="alert">
-                <i class="bi bi-info-circle me-2"></i>
-                No movies found matching your search.
+            <div class="alert alert-warning border-warning border-2 bg-warning-subtle text-warning-emphasis mb-4" role="alert">
+                <i class="bi bi-search me-2"></i>
+                No movies found matching your search. Try adjusting your search terms or filters.
             </div>
             {% endif %}
-            
-            <!-- People Results -->
+
+            <!-- PEOPLE RESULTS -->
             {% if results.people %}
             <h2 class="h5 mb-3 mt-5">People</h2>
             <div class="row row-cols-1 row-cols-md-2 g-4">
@@ -200,7 +203,7 @@
                                 <h6 class="small fw-semibold mb-2">Known For:</h6>
                                 <div class="d-flex flex-wrap gap-1">
                                     {% for movie in person.movies[:3] %}
-                                    <a href="{{ url_for('movie_detail', movie_id=movie.id) }}" 
+                                    <a href="{{ url_for('movie_detail', movie_id=movie.id) }}"
                                        class="badge bg-primary text-decoration-none">
                                         {{ movie.title }}
                                     </a>
@@ -217,10 +220,10 @@
             </div>
             {% endif %}
         </div>
-        
-        <!-- Sidebar -->
+
+        <!-- SIDEBAR COLUMN -->
         <div class="col-lg-4">
-            <!-- Search Tips -->
+            <!-- SEARCH TIPS -->
             <div class="card mb-4">
                 <div class="card-body">
                     <h3 class="h6 card-title mb-3">
@@ -235,8 +238,8 @@
                     </ul>
                 </div>
             </div>
-            
-            <!-- Popular Searches -->
+
+            <!-- POPULAR SEARCHES -->
             <div class="card mb-4">
                 <div class="card-body">
                     <h3 class="h6 card-title mb-3">
@@ -251,8 +254,8 @@
                     </div>
                 </div>
             </div>
-            
-            <!-- Search Statistics -->
+
+            <!-- SEARCH STATISTICS -->
             <div class="card">
                 <div class="card-body">
                     <h3 class="h6 card-title mb-3">
@@ -269,7 +272,7 @@
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center px-0">
                             Search Time
-                            <span class="badge bg-info rounded-pill">{{ search_time }}s</span>
+                            <span class="badge bg-primary rounded-pill">{{ search_time }}s</span>
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center px-0">
                             Total Database
@@ -278,8 +281,8 @@
                     </ul>
                 </div>
             </div>
-            
-            <!-- Accessibility Notice -->
+
+            <!-- ACCESSIBILITY NOTICE -->
             <div class="card mt-4 border-success">
                 <div class="card-body py-3">
                     <div class="d-flex align-items-center">
@@ -295,15 +298,16 @@
             </div>
         </div>
     </div>
-    
+
     {% elif query %}
-    <!-- No Results -->
+    <!-- NO RESULTS STATE -->
     <div class="text-center py-5">
         <div class="mb-4">
             <i class="bi bi-search display-1 text-muted"></i>
         </div>
         <h2 class="h4 mb-3">No results found for "{{ query }}"</h2>
         <p class="text-muted mb-4">Try checking your spelling or using different keywords.</p>
+
         <div class="d-flex justify-content-center gap-3">
             <a href="{{ url_for('movies') }}" class="btn btn-primary">
                 <i class="bi bi-film"></i> Browse All Movies
@@ -312,8 +316,8 @@
                 <i class="bi bi-arrow-left"></i> Go Back
             </button>
         </div>
-        
-        <!-- Suggestions -->
+
+        <!-- SUGGESTIONS -->
         <div class="mt-5">
             <h3 class="h6 mb-3">Suggestions:</h3>
             <div class="d-flex flex-wrap justify-content-center gap-2">
@@ -325,9 +329,9 @@
             </div>
         </div>
     </div>
-    
+
     {% else %}
-    <!-- Empty Search -->
+    <!-- EMPTY SEARCH STATE -->
     <div class="text-center py-5">
         <div class="mb-4">
             <i class="bi bi-search-heart display-1 text-primary"></i>
@@ -342,31 +346,25 @@
 {% block scripts %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Focus search input on load
     const searchInput = document.querySelector('input[name="q"]');
     if (searchInput) {
         searchInput.focus();
-        // Move cursor to end
         searchInput.selectionStart = searchInput.selectionEnd = searchInput.value.length;
     }
-    
-    // Keyboard shortcuts for search
+
     document.addEventListener('keydown', function(event) {
-        // Ctrl+K or / to focus search
         if ((event.ctrlKey && event.key === 'k') || event.key === '/') {
             event.preventDefault();
             if (searchInput) {
                 searchInput.focus();
             }
         }
-        
-        // Escape to clear search if focused
+
         if (event.key === 'Escape' && document.activeElement === searchInput) {
             searchInput.value = '';
         }
     });
-    
-    // Search form submission with Enter in search box
+
     if (searchInput) {
         searchInput.addEventListener('keydown', function(event) {
             if (event.key === 'Enter' && this.value.trim()) {
@@ -374,8 +372,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-    
-    // Toggle advanced filters with keyboard
+
     const filtersDetails = document.querySelector('details');
     if (filtersDetails) {
         const summary = filtersDetails.querySelector('summary');
@@ -386,12 +383,10 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-    
-    // Auto-submit filters when changed (optional)
+
     const filterSelects = document.querySelectorAll('#search_category, #search_year, #search_rating');
     filterSelects.forEach(select => {
         select.addEventListener('change', function() {
-            // In a real app, you might want to auto-submit or show a "Apply" button
         });
     });
 });

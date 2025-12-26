@@ -1,6 +1,4 @@
-/* ===== Accessibility Styles ===== */
-
-/* High Contrast Mode */
+/* High contrast mode */
 body.high-contrast {
     --primary-color: #0000ff;
     --secondary-color: #0000a0;
@@ -26,12 +24,13 @@ body.high-contrast .btn-outline-primary {
     border-width: 2px;
 }
 
-/* Focus Styles */
+/* Focus styles for all elements */
 :focus {
     outline: 3px solid var(--primary-color) !important;
     outline-offset: 2px !important;
 }
 
+/* Enhanced focus styles for interactive elements */
 button:focus,
 a:focus,
 input:focus,
@@ -40,13 +39,13 @@ textarea:focus {
     box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.5) !important;
 }
 
-/* Remove default Bootstrap focus style */
+/* Override Bootstrap focus styles */
 .btn-check:focus + .btn,
 .btn:focus {
     box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.5) !important;
 }
 
-/* Skip Link Focus */
+/* Skip link positioning when focused */
 .skip-link:focus {
     position: absolute;
     top: 10px;
@@ -54,7 +53,7 @@ textarea:focus {
     z-index: 1060;
 }
 
-/* Screen Reader Only */
+/* Screen reader only utility class */
 .sr-only {
     position: absolute;
     width: 1px;
@@ -67,13 +66,13 @@ textarea:focus {
     border: 0;
 }
 
-/* High Contrast Focus for High Contrast Mode */
+/* High contrast focus styles */
 body.high-contrast :focus {
     outline: 3px solid #ff0000 !important;
     outline-offset: 2px !important;
 }
 
-/* Increase Font Size */
+/* Large font size mode */
 body.large-font {
     font-size: 1.2rem;
 }
@@ -85,6 +84,7 @@ body.large-font .h4, body.large-font h4 { font-size: 1.5rem; }
 body.large-font .h5, body.large-font h5 { font-size: 1.25rem; }
 body.large-font .h6, body.large-font h6 { font-size: 1.1rem; }
 
+/* Extra large font size mode */
 body.xlarge-font {
     font-size: 1.4rem;
 }
@@ -96,7 +96,7 @@ body.xlarge-font .h4, body.xlarge-font h4 { font-size: 1.75rem; }
 body.xlarge-font .h5, body.xlarge-font h5 { font-size: 1.5rem; }
 body.xlarge-font .h6, body.xlarge-font h6 { font-size: 1.25rem; }
 
-/* Reduced Motion */
+/* Reduced motion preferences */
 @media (prefers-reduced-motion: reduce) {
     *,
     *::before,
@@ -118,13 +118,13 @@ body.xlarge-font .h6, body.xlarge-font h6 { font-size: 1.25rem; }
     }
 }
 
-/* ARIA Live Regions */
+/* ARIA live regions */
 [aria-live="polite"],
 [aria-live="assertive"] {
     position: relative;
 }
 
-/* Proper contrast for text on colored backgrounds */
+/* Text contrast for badges */
 .badge.bg-primary,
 .badge.bg-success,
 .badge.bg-warning,
@@ -133,10 +133,10 @@ body.xlarge-font .h6, body.xlarge-font h6 { font-size: 1.25rem; }
 }
 
 .badge.bg-warning {
-    color: #212529; /* Bootstrap default for warning badge text */
+    color: #212529;
 }
 
-/* Ensure all interactive elements are focusable */
+/* Cursor styling for interactive elements */
 button:not(:disabled),
 [role="button"]:not(:disabled),
 a[href],
@@ -146,13 +146,13 @@ textarea:not(:disabled) {
     cursor: pointer;
 }
 
-/* Proper heading hierarchy indicators */
+/* Heading hierarchy styling */
 .h1, .h2, .h3, .h4, .h5, .h6,
 h1, h2, h3, h4, h5, h6 {
     font-weight: 600;
 }
 
-/* Clear link underlines */
+/* Link underline styling */
 a:not(.btn):not(.dropdown-item) {
     text-decoration: underline;
     text-decoration-thickness: 1px;
@@ -163,34 +163,29 @@ a:not(.btn):not(.dropdown-item):hover {
     text-decoration-thickness: 2px;
 }
 
-/* Form labels */
+/* Form label styling */
 label {
     font-weight: 500;
     margin-bottom: 0.5rem;
 }
 
-/* Required field indicators */
+/* Required field indicator */
 .required::after {
     content: " *";
     color: var(--danger-color);
 }
 
-/* Error states */
+/* Error state focus styles */
 .is-invalid:focus {
     box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.5) !important;
 }
 
-/* Button focus states */
+/* Button focus state positioning */
 .btn:focus {
     position: relative;
 }
 
-/* Tab order visualization (for debugging) */
-/* .debug-taborder:focus {
-    outline: 3px dashed #00ff00 !important;
-} */
-
-/* Proper table markup for screen readers */
+/* Table accessibility styles */
 table {
     border-collapse: collapse;
     width: 100%;
@@ -216,7 +211,7 @@ li {
     margin-bottom: 0.25rem;
 }
 
-/* Image fallback styling */
+/* Image styling with fallback */
 img {
     max-width: 100%;
     height: auto;
@@ -234,7 +229,7 @@ img::after {
     border: 1px dashed #dee2e6;
 }
 
-/* Decorative images should be hidden from screen readers */
+/* Hide decorative images from screen readers */
 img[alt=""] {
     aria-hidden: "true";
 }
@@ -248,11 +243,12 @@ video:focus {
     outline: 3px solid var(--primary-color);
 }
 
-/* Custom focus for specific components */
+/* Custom focus for movie cards */
 .movie-card:focus-within {
     box-shadow: 0 0 0 3px var(--primary-color);
 }
 
+/* Navbar link focus styles */
 .navbar-nav .nav-link:focus {
     background-color: rgba(255, 255, 255, 0.1);
     border-radius: var(--border-radius);

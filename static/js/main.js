@@ -1,19 +1,15 @@
-// ===== CineReview Main JavaScript =====
-
-// Document Ready
+// ===== Core Initialization =====
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize all components
     initRatingInputs();
     initTooltips();
     initFormValidation();
     initKeyboardNavigation();
     initDynamicContent();
     initNavbarScroll();
-
 });
+
 function initNavbarScroll() {
     const navbar = document.querySelector('.navbar');
-
     if (navbar) {
         window.addEventListener('scroll', function() {
             if (window.scrollY > 50) {
@@ -23,39 +19,35 @@ function initNavbarScroll() {
             }
         });
 
-        // 初始检查
         if (window.scrollY > 50) {
             navbar.classList.add('navbar-scrolled');
         }
     }
 }
-// Rating Input Handler
+
+// ===== Rating System =====
 function initRatingInputs() {
     const ratingInputs = document.querySelectorAll('.rating-input input[type="radio"]');
-
     ratingInputs.forEach(input => {
         input.addEventListener('change', function() {
             const rating = this.value;
             const starLabels = this.closest('.rating-input').querySelectorAll('.star-label');
 
-            // Update star display
             starLabels.forEach((label, index) => {
                 const starIndex = 5 - index;
                 if (starIndex <= rating) {
-                    label.style.color = '#f8961e'; // Warning color
+                    label.style.color = '#f8961e';
                 } else {
                     label.style.color = '#ddd';
                 }
             });
 
-            // Announce rating for screen readers
             const liveRegion = document.getElementById('rating-live-region') || createLiveRegion();
             liveRegion.textContent = `Rating set to ${rating} out of 5 stars`;
         });
     });
 }
 
-// Create live region for screen reader announcements
 function createLiveRegion() {
     const liveRegion = document.createElement('div');
     liveRegion.id = 'rating-live-region';
@@ -66,7 +58,7 @@ function createLiveRegion() {
     return liveRegion;
 }
 
-// Bootstrap Tooltips
+// ===== UI Components =====
 function initTooltips() {
     const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
     tooltipTriggerList.map(function (tooltipTriggerEl) {
@@ -76,40 +68,32 @@ function initTooltips() {
     });
 }
 
-// Form Validation
 function initFormValidation() {
     const forms = document.querySelectorAll('.needs-validation');
-
     forms.forEach(form => {
         form.addEventListener('submit', function(event) {
             if (!form.checkValidity()) {
                 event.preventDefault();
                 event.stopPropagation();
-
-                // Focus on first invalid element
                 const invalidElements = form.querySelectorAll(':invalid');
                 if (invalidElements.length > 0) {
                     invalidElements[0].focus();
                 }
             }
-
             form.classList.add('was-validated');
         }, false);
     });
 }
 
-// Enhanced Keyboard Navigation
+// ===== Keyboard Navigation =====
 function initKeyboardNavigation() {
-    // Add keyboard shortcuts
     document.addEventListener('keydown', function(event) {
-        // Skip if user is typing in an input field
         if (event.target.tagName === 'INPUT' ||
             event.target.tagName === 'TEXTAREA' ||
             event.target.isContentEditable) {
             return;
         }
 
-        // S - Skip to search
         if (event.key === 's' || event.key === 'S') {
             const searchInput = document.querySelector('input[type="search"]');
             if (searchInput) {
@@ -118,20 +102,17 @@ function initKeyboardNavigation() {
             }
         }
 
-        // M - Skip to main content
         if (event.key === 'm' || event.key === 'M') {
             event.preventDefault();
             document.getElementById('main-content').focus();
         }
 
-        // H - Go to home
         if (event.key === 'h' || event.key === 'H') {
             event.preventDefault();
             window.location.href = '/';
         }
     });
 
-    // Trap focus in modal dialogs
     const modals = document.querySelectorAll('.modal');
     modals.forEach(modal => {
         modal.addEventListener('shown.bs.modal', function() {
@@ -145,17 +126,14 @@ function initKeyboardNavigation() {
                 firstElement.focus();
             }
 
-            // Trap focus
             modal.addEventListener('keydown', function trapTab(event) {
                 if (event.key === 'Tab') {
                     if (event.shiftKey) {
-                        // Shift + Tab
                         if (document.activeElement === firstElement) {
                             event.preventDefault();
                             lastElement.focus();
                         }
                     } else {
-                        // Tab
                         if (document.activeElement === lastElement) {
                             event.preventDefault();
                             firstElement.focus();
@@ -163,7 +141,6 @@ function initKeyboardNavigation() {
                     }
                 }
 
-                // Escape key closes modal
                 if (event.key === 'Escape') {
                     const modalInstance = bootstrap.Modal.getInstance(modal);
                     modalInstance.hide();
@@ -173,12 +150,10 @@ function initKeyboardNavigation() {
     });
 }
 
-// Dynamic Content Loading
+// ===== Dynamic Content =====
 function initDynamicContent() {
-    // Lazy load images
     if ('IntersectionObserver' in window) {
         const lazyImages = document.querySelectorAll('img[data-src]');
-
         const imageObserver = new IntersectionObserver((entries, observer) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
@@ -189,16 +164,13 @@ function initDynamicContent() {
                 }
             });
         });
-
         lazyImages.forEach(img => imageObserver.observe(img));
     }
 
-    // Handle AJAX form submissions
     const ajaxForms = document.querySelectorAll('form[data-ajax]');
     ajaxForms.forEach(form => {
         form.addEventListener('submit', function(event) {
             event.preventDefault();
-
             const formData = new FormData(form);
             const action = form.getAttribute('action');
             const method = form.getAttribute('method') || 'POST';
@@ -213,37 +185,30 @@ function initDynamicContent() {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    // Show success message
-                    showNotification(data.message || '操作成功', 'success');
-
-                    // Reset form if needed
+                    showNotification(data.message || 'Operation successful', 'success');
                     if (form.hasAttribute('data-reset')) {
                         form.reset();
                     }
-
-                    // Reload content if needed
                     if (data.reload) {
                         setTimeout(() => location.reload(), 1000);
                     }
                 } else {
-                    showNotification(data.message || '操作失败，请重试', 'error');
+                    showNotification(data.message || 'Operation failed, please try again', 'error');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                showNotification('操作失败，请重试', 'error');
+                showNotification('Operation failed, please try again', 'error');
             });
         });
     });
 }
 
-// Notification System
+// ===== Notification System =====
 function showNotification(message, type = 'info') {
-    // 移除现有通知
     const existingNotifications = document.querySelectorAll('.custom-notification');
     existingNotifications.forEach(notification => notification.remove());
 
-    // 创建通知
     const notification = document.createElement('div');
     notification.className = `custom-notification alert alert-${type} alert-dismissible fade show`;
     notification.setAttribute('role', 'alert');
@@ -252,10 +217,9 @@ function showNotification(message, type = 'info') {
     notification.innerHTML = `
         <i class="bi ${getNotificationIcon(type)} me-2"></i>
         ${message}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="关闭"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     `;
 
-    // 样式调整 - 居中上方
     notification.style.position = 'fixed';
     notification.style.top = '20px';
     notification.style.left = '50%';
@@ -268,7 +232,6 @@ function showNotification(message, type = 'info') {
 
     document.body.appendChild(notification);
 
-    // 5秒后自动消失
     setTimeout(() => {
         if (notification.parentNode) {
             notification.classList.remove('show');
@@ -286,7 +249,7 @@ function getNotificationIcon(type) {
     }
 }
 
-// Debounce function for performance
+// ===== Performance Utilities =====
 function debounce(func, wait) {
     let timeout;
     return function executedFunction(...args) {
@@ -299,7 +262,6 @@ function debounce(func, wait) {
     };
 }
 
-// Throttle function for performance
 function throttle(func, limit) {
     let inThrottle;
     return function() {
@@ -313,7 +275,7 @@ function throttle(func, limit) {
     };
 }
 
-// Export functions for use in other modules (if using modules)
+// ===== Module Export =====
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
         showNotification,

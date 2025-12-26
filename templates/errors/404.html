@@ -3,6 +3,7 @@
 {% block title %}Page Not Found - CineReview{% endblock %}
 
 {% block content %}
+<!-- ERROR PAGE CONTENT -->
 <div class="container text-center py-5">
     <div class="error-page">
         <div class="mb-4">
@@ -10,7 +11,7 @@
             <i class="bi bi-question-circle display-1 text-primary mx-3"></i>
             <i class="bi bi-film display-1 text-muted"></i>
         </div>
-        
+
         <h1 class="display-4 fw-bold text-primary mb-3">Oops!</h1>
         <h2 class="h3 mb-4">Something went wrong</h2>
 
@@ -25,7 +26,8 @@
             An unexpected error occurred.
             {% endif %}
         </p>
-        
+
+        <!-- SUGGESTIONS CARD -->
         <div class="row justify-content-center">
             <div class="col-md-6">
                 <div class="card">
@@ -51,7 +53,8 @@
                         </ul>
                     </div>
                 </div>
-                
+
+                <!-- ACTION BUTTONS -->
                 <div class="mt-4">
                     <div class="d-grid gap-2 d-md-flex justify-content-md-center">
                         <a href="{{ url_for('index') }}" class="btn btn-primary btn-lg px-4">
@@ -67,8 +70,8 @@
                 </div>
             </div>
         </div>
-        
-        <!-- Accessibility Message -->
+
+        <!-- ACCESSIBILITY INFORMATION -->
         <div class="mt-5">
             <details class="border rounded p-3">
                 <summary class="fw-semibold">

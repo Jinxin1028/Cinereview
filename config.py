@@ -51,7 +51,7 @@ class ProductionConfig(Config):
     DEBUG = False
     SQLALCHEMY_ECHO = False
     SESSION_COOKIE_SECURE = True  # Requires HTTPS
-
+    SQLALCHEMY_DATABASE_URI = 'sqlite:////home/Jinxin/Web_assessment_2/instance/movies.db'
 
 class TestingConfig(Config):
     TESTING = True
