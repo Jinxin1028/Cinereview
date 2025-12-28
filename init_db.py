@@ -1,48 +1,30 @@
-#!/usr/bin/env python3
-"""
-Database initialization script for CineReview.
-Run this script to create the database and load sample data.
-"""
-
 import os
-import sys
-
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from app import app, db
 from models import User, Movie, Genre, Review
 import json
-from datetime import datetime
 
 
+# Main database initialization function
 def init_database():
-    """Initialize the database with tables and sample data"""
     print("Initializing database...")
 
-    # Create all tables
     with app.app_context():
-        db.drop_all()  # Be careful with this in production!
+        db.drop_all()
         db.create_all()
         print("✓ Tables created")
 
-        # Load genres
         load_genres()
-
-        # Load sample movies
         load_sample_movies()
-
-        # Create admin user
         create_admin_user()
-
-        # Create some sample reviews
         create_sample_reviews()
 
         print("\n✓ Database initialized successfully!")
         print(f"Database file: {app.config['SQLALCHEMY_DATABASE_URI']}")
 
 
+# Load movie genres into database
 def load_genres():
-    """Load movie genres"""
     genres = [
         'Action', 'Adventure', 'Animation', 'Comedy', 'Crime',
         'Documentary', 'Drama', 'Family', 'Fantasy', 'History',
@@ -58,9 +40,13 @@ def load_genres():
     print(f"✓ Loaded {len(genres)} genres")
 
 
+# Load sample movies from JSON file
 def load_sample_movies():
-    """Load sample movies from JSON file"""
-    sample_movies_path = os.path.join(app.root_path, 'data', 'sample_movies.json')
+    sample_movies_path = os.path.join(
+        app.root_path,
+        'data',
+        'sample_movies.json'
+    )
 
     if not os.path.exists(sample_movies_path):
         print("✗ Sample movies file not found. Creating basic sample...")
@@ -86,7 +72,6 @@ def load_sample_movies():
                 imdb_id=movie_data.get('imdb_id')
             )
 
-            # Add genres
             movie_genres = movie_data.get('genres', [])
             for genre_name in movie_genres:
                 if genre_name in genres:
@@ -102,8 +87,8 @@ def load_sample_movies():
         create_basic_sample_movies()
 
 
+# Create basic sample movies if JSON file is unavailable
 def create_basic_sample_movies():
-    """Create basic sample movies if JSON file is not available"""
     genres = {genre.name: genre for genre in Genre.query.all()}
 
     sample_movies = [
@@ -111,7 +96,11 @@ def create_basic_sample_movies():
             'title': 'The Shawshank Redemption',
             'year': 1994,
             'director': 'Frank Darabont',
-            'plot': 'Two imprisoned men bond over a number of years, finding solace and eventual redemption through acts of common decency.',
+            'plot': (
+                'Two imprisoned men bond over a number of years, '
+                'finding solace and eventual redemption '
+                'through acts of common decency.'
+            ),
             'runtime': 142,
             'genres': ['Drama']
         },
@@ -119,7 +108,11 @@ def create_basic_sample_movies():
             'title': 'The Godfather',
             'year': 1972,
             'director': 'Francis Ford Coppola',
-            'plot': 'The aging patriarch of an organized crime dynasty transfers control of his clandestine empire to his reluctant son.',
+            'plot': (
+                'The aging patriarch of an organized crime dynasty '
+                'transfers control of his clandestine empire '
+                'to his reluctant son.'
+            ),
             'runtime': 175,
             'genres': ['Crime', 'Drama']
         },
@@ -127,7 +120,12 @@ def create_basic_sample_movies():
             'title': 'The Dark Knight',
             'year': 2008,
             'director': 'Christopher Nolan',
-            'plot': 'When the menace known as the Joker wreaks havoc and chaos on the people of Gotham, Batman must accept one of the greatest psychological and physical tests of his ability to fight injustice.',
+            'plot': (
+                'When the menace known as the Joker wreaks havoc '
+                'and chaos on the people of Gotham, Batman must accept '
+                'one of the greatest psychological and physical tests '
+                'of his ability to fight injustice.'
+            ),
             'runtime': 152,
             'genres': ['Action', 'Crime', 'Drama']
         },
@@ -135,7 +133,11 @@ def create_basic_sample_movies():
             'title': 'Pulp Fiction',
             'year': 1994,
             'director': 'Quentin Tarantino',
-            'plot': 'The lives of two mob hitmen, a boxer, a gangster and his wife intertwine in four tales of violence and redemption.',
+            'plot': (
+                'The lives of two mob hitmen, a boxer, '
+                'a gangster and his wife intertwine in '
+                'four tales of violence and redemption.'
+            ),
             'runtime': 154,
             'genres': ['Crime', 'Drama']
         }
@@ -160,8 +162,8 @@ def create_basic_sample_movies():
     print(f"✓ Created {len(sample_movies)} basic sample movies")
 
 
+# Create admin user for testing
 def create_admin_user():
-    """Create an admin user for testing"""
     admin = User(
         username='admin',
         email='admin@cinereview.com',
@@ -174,11 +176,9 @@ def create_admin_user():
     print("✓ Created admin user (username: admin, password: admin123)")
 
 
+# Create sample reviews
 def create_sample_reviews():
-    """Create some sample reviews"""
-    from werkzeug.security import generate_password_hash
 
-    # Create a test user
     test_user = User(
         username='testuser',
         email='test@example.com',
@@ -187,20 +187,29 @@ def create_sample_reviews():
     db.session.add(test_user)
     db.session.commit()
 
-    # Get some movies
     movies = Movie.query.limit(3).all()
 
     sample_reviews = [
         {
-            'content': 'An absolute masterpiece! The storytelling and character development are exceptional.',
+
+            'content': (
+                'An absolute masterpiece! The storytelling '
+                'and character development are exceptional.'
+            ),
             'rating': 5
         },
         {
-            'content': 'Good movie with great performances, but the pacing was a bit slow in the middle.',
+            'content': (
+                'Good movie with great performances, but '
+                'the pacing was a bit slow in the middle.'
+            ),
             'rating': 4
         },
         {
-            'content': 'Entertaining but predictable. The visual effects were impressive though.',
+            'content': (
+                'Entertaining but predictable. The visual '
+                'effects were impressive though.'
+            ),
             'rating': 3
         }
     ]
@@ -219,8 +228,8 @@ def create_sample_reviews():
     print("✓ Created sample reviews")
 
 
+# Check database status
 def check_database():
-    """Check database status"""
     with app.app_context():
         print("\nDatabase Status:")
         print(f"Users: {User.query.count()}")
@@ -228,13 +237,13 @@ def check_database():
         print(f"Genres: {Genre.query.count()}")
         print(f"Reviews: {Review.query.count()}")
 
-        # List all genres
         print("\nAvailable Genres:")
         genres = Genre.query.order_by(Genre.name).all()
         for genre in genres:
             print(f"  - {genre.name}")
 
 
+# Script entry point
 if __name__ == '__main__':
     init_database()
     check_database()

@@ -1,11 +1,18 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, TextAreaField, IntegerField, SelectField, BooleanField
-from wtforms.validators import DataRequired, Email, Length, EqualTo, ValidationError, Optional, NumberRange, Regexp
+from wtforms import (
+    StringField, PasswordField, TextAreaField,
+    IntegerField, SelectField, BooleanField
+)
+from wtforms.validators import (
+    DataRequired, Email, Length, EqualTo,
+    ValidationError, Optional, NumberRange, Regexp
+)
 from flask_wtf.file import FileField, FileAllowed
 from models import User
 import re
 
 
+# --- LOGIN FORM ---
 class LoginForm(FlaskForm):
     username = StringField('Username or Email', validators=[
         DataRequired(message='Please enter your username or email'),
@@ -18,11 +25,17 @@ class LoginForm(FlaskForm):
     remember_me = BooleanField('Remember me')
 
 
+# --- REGISTRATION FORM ---
 class RegistrationForm(FlaskForm):
     username = StringField('Username', validators=[
         DataRequired(message='Please choose a username'),
-        Length(min=3, max=20, message='Username must be between 3 and 20 characters'),
-        Regexp('^[A-Za-z0-9_]+$', message='Username can only contain letters, numbers, and underscores')
+        Length(min=3, max=20,
+               message='Username must be between 3 and 20 characters'),
+        Regexp(
+            '^[A-Za-z0-9_]+$',
+            message='Username can only contain letters, '
+                    'numbers, and underscores'
+        )
     ])
     email = StringField('Email', validators=[
         DataRequired(message='Please enter your email address'),
@@ -41,27 +54,40 @@ class RegistrationForm(FlaskForm):
         Optional(),
         Length(max=100, message='Display name cannot exceed 100 characters')
     ])
-    agree_terms = BooleanField('I agree to the Terms of Service and Privacy Policy', validators=[
-        DataRequired(message='You must agree to the terms and conditions')
-    ])
+    agree_terms = BooleanField(
+        'I agree to the Terms of Service and Privacy Policy',
+        validators=[
+            DataRequired(
+                message='You must agree to the terms and conditions'
+            )
+        ]
+    )
 
     def validate_username(self, username):
         user = User.query.filter_by(username=username.data).first()
         if user:
-            raise ValidationError('This username is already taken. Please choose a different one.')
+            raise ValidationError(
+                'This username is already taken. '
+                'Please choose a different one.'
+            )
 
     def validate_email(self, email):
         user = User.query.filter_by(email=email.data).first()
         if user:
-            raise ValidationError('This email is already registered. Please use a different email or login.')
+            raise ValidationError(
+                'This email is already registered. '
+                'Please use a different email or login.'
+            )
 
     def validate_password(self, password):
-        # Custom password validation
         pwd = password.data
         if not re.search(r'[A-Za-z]', pwd) or not re.search(r'[0-9]', pwd):
-            raise ValidationError('Password should contain both letters and numbers')
+            raise ValidationError(
+                'Password should contain both letters and numbers'
+            )
 
 
+# --- REVIEW FORM ---
 class ReviewForm(FlaskForm):
     rating = IntegerField('Rating', validators=[
         DataRequired(message='Please select a rating'),
@@ -69,10 +95,14 @@ class ReviewForm(FlaskForm):
     ])
     content = TextAreaField('Review', validators=[
         DataRequired(message='Please write your review'),
-        Length(min=10, max=2000, message='Review must be between 10 and 2000 characters')
+        Length(
+            min=5, max=2000,
+            message='Review must be between 5 and 2000 characters'
+        )
     ])
 
 
+# --- PROFILE EDIT FORM ---
 class EditProfileForm(FlaskForm):
     display_name = StringField('Display Name', validators=[
         Optional(),
@@ -103,10 +133,14 @@ class EditProfileForm(FlaskForm):
                 raise ValidationError('This email is already registered.')
 
 
+# --- SEARCH FORM ---
 class SearchForm(FlaskForm):
     q = StringField('Search', validators=[
         DataRequired(message='Please enter a search term'),
-        Length(min=2, max=200, message='Search term must be between 2 and 200 characters')
+        Length(
+            min=2, max=200,
+            message='Search term must be between 2 and 200 characters'
+        )
     ])
     category = SelectField('Category', choices=[
         ('', 'All Categories'),
@@ -127,6 +161,7 @@ class SearchForm(FlaskForm):
     ], validators=[Optional()])
 
 
+# --- PASSWORD MANAGEMENT FORMS ---
 class ChangePasswordForm(FlaskForm):
     current_password = PasswordField('Current Password', validators=[
         DataRequired(message='Please enter your current password')
@@ -159,7 +194,7 @@ class ResetPasswordForm(FlaskForm):
     ])
 
 
-# Form for filtering movies
+# --- MOVIE FILTER FORM ---
 class MovieFilterForm(FlaskForm):
     genre = SelectField('Genre', validators=[Optional()])
     year = SelectField('Year', validators=[Optional()])

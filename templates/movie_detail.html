@@ -139,9 +139,9 @@
             </div>
             {% else %}
             <!-- LOGIN PROMPT -->
-            <div class="alert alert-info mb-4 border-info-subtle bg-info-subtle" role="alert">
+            <div class="alert alert-warning border-warning border-2 bg-warning-subtle text-warning-emphasis" role="alert">
                 <i class="bi bi-info-circle me-2"></i>
-                Please <a href="{{ url_for('login') }}" class="alert-link fw-semibold text-info-emphasis">log in</a> to write a review.
+                Please <a href="{{ url_for('login') }}" class="alert-link fw-semibold text-warning-emphasis">log in</a> to write a review.
             </div>
             {% endif %}
 

@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -7,26 +7,40 @@ db = SQLAlchemy()
 
 # Association tables for many-to-many relationships
 movie_genres = db.Table('movie_genres',
-                        db.Column('movie_id', db.Integer, db.ForeignKey('movie.id'), primary_key=True),
-                        db.Column('genre_id', db.Integer, db.ForeignKey('genre.id'), primary_key=True)
+                        db.Column('movie_id', db.Integer,
+                                  db.ForeignKey('movie.id'), primary_key=True),
+                        db.Column('genre_id', db.Integer,
+                                  db.ForeignKey('genre.id'), primary_key=True)
                         )
 
 user_likes = db.Table('user_likes',
-                      db.Column('user_id', db.Integer, db.ForeignKey('user.id'), primary_key=True),
-                      db.Column('movie_id', db.Integer, db.ForeignKey('movie.id'), primary_key=True),
-                      db.Column('liked_at', db.DateTime, default=datetime.utcnow)
+                      db.Column('user_id', db.Integer,
+                                db.ForeignKey('user.id'), primary_key=True),
+                      db.Column('movie_id', db.Integer,
+                                db.ForeignKey('movie.id'), primary_key=True),
+                      db.Column('liked_at', db.DateTime,
+                                default=lambda: datetime.now(timezone.utc))
                       )
 
 user_watchlist = db.Table('user_watchlist',
-                          db.Column('user_id', db.Integer, db.ForeignKey('user.id'), primary_key=True),
-                          db.Column('movie_id', db.Integer, db.ForeignKey('movie.id'), primary_key=True),
-                          db.Column('added_at', db.DateTime, default=datetime.utcnow)
+                          db.Column('user_id', db.Integer,
+                                    db.ForeignKey('user.id'),
+                                    primary_key=True),
+                          db.Column('movie_id', db.Integer,
+                                    db.ForeignKey('movie.id'),
+                                    primary_key=True),
+                          db.Column('added_at', db.DateTime,
+                                    default=lambda: datetime.now(timezone.utc))
                           )
 
 review_likes = db.Table('review_likes',
-                        db.Column('user_id', db.Integer, db.ForeignKey('user.id'), primary_key=True),
-                        db.Column('review_id', db.Integer, db.ForeignKey('review.id'), primary_key=True),
-                        db.Column('liked_at', db.DateTime, default=datetime.utcnow)
+                        db.Column('user_id', db.Integer,
+                                  db.ForeignKey('user.id'), primary_key=True),
+                        db.Column('review_id', db.Integer,
+                                  db.ForeignKey('review.id'),
+                                  primary_key=True),
+                        db.Column('liked_at', db.DateTime,
+                                  default=lambda: datetime.now(timezone.utc))
                         )
 
 
@@ -34,17 +48,21 @@ class User(UserMixin, db.Model):
     __tablename__ = 'user'
 
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True, nullable=False, index=True)
+    username = db.Column(
+        db.String(80), unique=True, nullable=False, index=True
+    )
     email = db.Column(db.String(120), unique=True, nullable=False, index=True)
     password_hash = db.Column(db.String(256), nullable=False)
     display_name = db.Column(db.String(100))
     bio = db.Column(db.Text)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=datetime.now(timezone.utc))
     last_login = db.Column(db.DateTime)
     is_active = db.Column(db.Boolean, default=True)
 
     # Relationships
-    reviews = db.relationship('Review', back_populates='user', cascade='all, delete-orphan')
+    reviews = db.relationship(
+        'Review', back_populates='user', cascade='all, delete-orphan'
+    )
     liked_movies = db.relationship('Movie', secondary=user_likes,
                                    back_populates='liked_by', lazy='dynamic')
     watchlist = db.relationship('Movie', secondary=user_watchlist,
@@ -67,10 +85,14 @@ class User(UserMixin, db.Model):
         return self.display_name or self.username
 
     def is_liking_movie(self, movie):
-        return self.liked_movies.filter(user_likes.c.movie_id == movie.id).count() > 0
+        return self.liked_movies.filter(
+            user_likes.c.movie_id == movie.id
+        ).count() > 0
 
     def is_watching_movie(self, movie):
-        return self.watchlist.filter(user_watchlist.c.movie_id == movie.id).count() > 0
+        return self.watchlist.filter(
+            user_watchlist.c.movie_id == movie.id
+        ).count() > 0
 
     def is_liking_review(self, review):
         """检查用户是否点赞了某个评论"""
@@ -109,10 +131,12 @@ class Movie(db.Model):
     poster_url = db.Column(db.String(500))
     imdb_id = db.Column(db.String(20), unique=True)
     release_date = db.Column(db.String(50))
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=datetime.now(timezone.utc))
 
     # Relationships
-    reviews = db.relationship('Review', back_populates='movie', cascade='all, delete-orphan')
+    reviews = db.relationship(
+        'Review', back_populates='movie', cascade='all, delete-orphan'
+    )
     genres = db.relationship('Genre', secondary=movie_genres,
                              back_populates='movies')
     liked_by = db.relationship('User', secondary=user_likes,
@@ -174,8 +198,11 @@ class Review(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.Text, nullable=False)
     rating = db.Column(db.Integer, nullable=False)  # 1-5
-    created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=datetime.now(timezone.utc), index=True)
+    updated_at = db.Column(db.DateTime,
+                           default=lambda: datetime.now(timezone.utc),
+                           onupdate=lambda: datetime.now(timezone.utc),
+                           )
 
     # Foreign keys
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
@@ -222,7 +249,8 @@ class Review(db.Model):
         ).scalar()
 
     def __repr__(self):
-        return f'<Review {self.id} by {self.user.username} for {self.movie.title}>'
+        return f'<Review {self.id} by {self.user.username} ' \
+               f'for {self.movie.title}>'
 
 
 class SearchHistory(db.Model):
@@ -231,7 +259,7 @@ class SearchHistory(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     query = db.Column(db.String(200), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=datetime.now(timezone.utc))
     results_count = db.Column(db.Integer)
 
     # Relationship

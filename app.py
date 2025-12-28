@@ -1,17 +1,19 @@
-from flask import Flask, render_template, request, jsonify, redirect, url_for, flash, abort, send_from_directory
-from flask_login import LoginManager, login_user, logout_user, login_required, current_user
+from flask import (Flask, render_template, request, jsonify,
+                   redirect, url_for, flash, send_from_directory)
+from flask_login import (LoginManager, login_user, logout_user,
+                         login_required, current_user)
 from flask_wtf.csrf import CSRFProtect, generate_csrf
-from sqlalchemy import func, or_, desc, asc
+from sqlalchemy import func, desc
 from sqlalchemy.orm import joinedload
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 import json
 
 from config import config
-from models import db, User, Movie, Genre, Review, SearchHistory, user_likes, user_watchlist, review_likes
-from forms import LoginForm, RegistrationForm, ReviewForm, EditProfileForm, SearchForm, MovieFilterForm
+from models import (db, User, Movie, Genre, Review, SearchHistory,
+                    user_likes, user_watchlist, review_likes)
+from forms import LoginForm, RegistrationForm, ReviewForm, EditProfileForm
 
-# Initialize extensions
 login_manager = LoginManager()
 csrf = CSRFProtect()
 
@@ -20,21 +22,17 @@ def create_app(config_name='default'):
     app = Flask(__name__)
     app.config.from_object(config[config_name])
 
-    # Initialize extensions
     db.init_app(app)
     login_manager.init_app(app)
     csrf.init_app(app)
 
-    # Configure login manager
     login_manager.login_view = 'login'
     login_manager.login_message = 'Please log in to access this page.'
     login_manager.login_message_category = 'info'
     login_manager.refresh_view = 'login'
 
-    # Create tables and load initial data
     with app.app_context():
         db.create_all()
-        # Load initial data if needed
         if not Genre.query.first():
             load_initial_data(app)
 
@@ -42,7 +40,6 @@ def create_app(config_name='default'):
 
 
 def load_initial_data(app):
-    """Load initial genres and sample movies if database is empty"""
     genres = [
         'Action', 'Adventure', 'Animation', 'Comedy', 'Crime',
         'Documentary', 'Drama', 'Family', 'Fantasy', 'History',
@@ -50,7 +47,6 @@ def load_initial_data(app):
         'Thriller', 'War', 'Western'
     ]
 
-    # 创建流派字典，方便后续查找
     genre_objects = {}
     for genre_name in genres:
         genre = Genre(name=genre_name)
@@ -59,8 +55,10 @@ def load_initial_data(app):
 
     db.session.commit()
 
-    # Load sample movies from a JSON file if it exists
-    sample_movies_path = os.path.join(app.root_path, 'data', 'sample_movies.json')
+    sample_movies_path = os.path.join(
+        app.root_path,
+        'data',
+        'sample_movies.json')
     if os.path.exists(sample_movies_path):
         with open(sample_movies_path, 'r') as f:
             movies_data = json.load(f)
@@ -74,7 +72,6 @@ def load_initial_data(app):
                     poster_url=movie_data.get('poster_url')
                 )
 
-                # 添加电影的流派
                 for genre_name in movie_data.get('genres', []):
                     genre = genre_objects.get(genre_name)
                     if genre:
@@ -82,6 +79,7 @@ def load_initial_data(app):
 
                 db.session.add(movie)
         db.session.commit()
+
 
 app = create_app()
 
@@ -91,7 +89,6 @@ def load_user(user_id):
     return db.session.get(User, int(user_id))
 
 
-# Context processors
 @app.context_processor
 def inject_user():
     return dict(current_user=current_user)
@@ -104,12 +101,13 @@ def inject_csrf_token():
 
 @app.context_processor
 def inject_stats():
-    # 使用子查询计算平均评分
     avg_rating_subquery = db.session.query(
         func.avg(Review.rating).label('avg_rating')
     ).subquery()
 
-    avg_rating = db.session.query(avg_rating_subquery.c.avg_rating).scalar() or 0
+    avg_rating = db.session.query(
+        avg_rating_subquery.c.avg_rating
+    ).scalar() or 0
 
     stats = {
         'total_movies': Movie.query.count(),
@@ -120,7 +118,6 @@ def inject_stats():
     return dict(stats=stats)
 
 
-# Error handlers
 @app.errorhandler(404)
 def page_not_found(error):
     return render_template('errors/404.html'), 404
@@ -137,11 +134,8 @@ def internal_error(error):
     return render_template('errors/500.html'), 500
 
 
-# Routes
 @app.route('/')
 def index():
-    """Home page with featured movies and recent reviews"""
-    # 获取特色电影（最高评分且有至少1条评论）
     featured_movies_subquery = db.session.query(
         Review.movie_id,
         func.avg(Review.rating).label('avg_rating'),
@@ -150,30 +144,26 @@ def index():
 
     featured_movies = Movie.query \
         .options(joinedload(Movie.genres)) \
-        .join(featured_movies_subquery, Movie.id == featured_movies_subquery.c.movie_id) \
+        .join(featured_movies_subquery, Movie.id
+              == featured_movies_subquery.c.movie_id) \
         .order_by(desc(featured_movies_subquery.c.avg_rating)) \
         .limit(4) \
         .all()
 
-    # Get recent reviews - 预加载 liked_by 关系
     recent_reviews = Review.query \
         .options(
             joinedload(Review.user),
             joinedload(Review.movie),
-            joinedload(Review.liked_by)  # 添加这一行
+            joinedload(Review.liked_by)
         ) \
         .order_by(desc(Review.created_at)) \
         .limit(5) \
         .all()
 
     for review in recent_reviews:
-        # 计算点赞数
         review.likes_count = len(review.liked_by)
-
-        # 检查当前用户是否已点赞
         review.is_liked_by_current = False
         if current_user.is_authenticated:
-            # 检查当前用户是否在 liked_by 列表中
             review.is_liked_by_current = any(
                 user.id == current_user.id for user in review.liked_by
             )
@@ -182,17 +172,14 @@ def index():
                            featured_movies=featured_movies,
                            recent_reviews=recent_reviews)
 
+
 @app.route('/movies')
 def movies():
-    """Browse all movies with filtering and pagination"""
-    from sqlalchemy import func, desc
     page = request.args.get('page', 1, type=int)
     per_page = app.config['MOVIES_PER_PAGE']
 
-    # Build query with filters
     query = Movie.query.options(joinedload(Movie.genres))
 
-    # Apply filters
     genre_id = request.args.get('genre', type=int)
     year = request.args.get('year', type=int)
     min_rating = request.args.get('min_rating', 0, type=float)
@@ -204,14 +191,14 @@ def movies():
     if year:
         query = query.filter(Movie.year == year)
 
-    # Apply sorting - 先创建平均评分子查询
     avg_rating_subquery = db.session.query(
         Review.movie_id,
         func.avg(Review.rating).label('avg_rating'),
         func.count(Review.id).label('review_count')
     ).group_by(Review.movie_id).subquery()
 
-    query = query.outerjoin(avg_rating_subquery, Movie.id == avg_rating_subquery.c.movie_id)
+    query = query.outerjoin(avg_rating_subquery, Movie.id
+                            == avg_rating_subquery.c.movie_id)
 
     if sort == 'title':
         query = query.order_by(Movie.title)
@@ -222,25 +209,26 @@ def movies():
     elif sort == '-year':
         query = query.order_by(desc(Movie.year))
     elif sort == '-rating':
-        # 按评分降序，无评分的放最后
         query = query.order_by(desc(avg_rating_subquery.c.avg_rating))
     elif sort == 'rating':
-        # 按评分升序，无评分的放最后
         query = query.order_by(avg_rating_subquery.c.avg_rating)
 
-    # 如果有最小评分要求
     if min_rating > 0:
         query = query.filter(avg_rating_subquery.c.avg_rating >= min_rating)
 
-    # Get available filters
     genres = Genre.query.order_by(Genre.name).all()
-    years = db.session.query(Movie.year).distinct().order_by(desc(Movie.year)).all()
+    years = (db.session.query(Movie.year)
+             .distinct()
+             .order_by(desc(Movie.year))
+             .all())
     years = [year[0] for year in years]
 
-    # Paginate results
-    movies_paginated = query.paginate(page=page, per_page=per_page, error_out=False)
+    movies_paginated = query.paginate(
+        page=page,
+        per_page=per_page,
+        error_out=False
+    )
 
-    # Calculate average rating for all movies
     avg_rating = db.session.query(func.avg(Review.rating)).scalar() or 0
 
     return render_template('movies.html',
@@ -255,12 +243,10 @@ def movies():
 
 @app.route('/movie/<int:movie_id>')
 def movie_detail(movie_id):
-    """Movie detail page with reviews and actions"""
     movie = Movie.query \
         .options(joinedload(Movie.genres)) \
         .get_or_404(movie_id)
 
-    # Check if user has liked or added to watchlist
     is_liked = False
     in_watchlist = False
 
@@ -268,22 +254,16 @@ def movie_detail(movie_id):
         is_liked = current_user.is_liking_movie(movie)
         in_watchlist = current_user.is_watching_movie(movie)
 
-    # Get similar movies
     similar_movies = movie.get_similar_movies(limit=5)
 
-    # Get reviews for this movie - 添加预加载 liked_by 关系
     reviews = Review.query \
         .options(joinedload(Review.user), joinedload(Review.liked_by)) \
         .filter_by(movie_id=movie_id) \
         .order_by(desc(Review.created_at)) \
         .all()
 
-    # 为每个评论计算点赞数和当前用户点赞状态
     for review in reviews:
-        # 计算点赞数
         review.likes_count = len(review.liked_by)
-
-        # 检查当前用户是否已点赞
         review.is_liked_by_current = False
         if current_user.is_authenticated:
             review.is_liked_by_current = any(
@@ -300,22 +280,25 @@ def movie_detail(movie_id):
                            in_watchlist=in_watchlist,
                            form=form)
 
+
 @app.route('/movie/<int:movie_id>/review', methods=['POST'])
 @login_required
 def add_review(movie_id):
-    """Add a review to a movie"""
-    movie = Movie.query.get_or_404(movie_id)
+    Movie.query.get_or_404(movie_id)
     form = ReviewForm()
 
     if form.validate_on_submit():
-        # Check if user already reviewed this movie
         existing_review = Review.query.filter_by(
             user_id=current_user.id,
             movie_id=movie_id
         ).first()
 
         if existing_review:
-            flash('You have already reviewed this movie. You can edit your existing review.', 'warning')
+            flash(
+                'You have already reviewed this movie.'
+                ' You can edit your existing review.',
+                'warning'
+            )
             return redirect(url_for('movie_detail', movie_id=movie_id))
 
         review = Review(
@@ -339,33 +322,30 @@ def add_review(movie_id):
 
 @app.route('/movie/<int:movie_id>/like', methods=['POST'])
 @login_required
-@csrf.exempt  # AJAX endpoint with custom CSRF handling
+@csrf.exempt
 def like_movie(movie_id):
-    """Like or unlike a movie (AJAX endpoint)"""
-    from sqlalchemy.orm import joinedload
-
-    # 检查用户是否已登录
     if not current_user.is_authenticated:
-        return jsonify({'success': False, 'message': '请先登录'}), 401
-
+        return (
+            jsonify({'success': False, 'message': 'Please login first'}),
+            401
+        )
     movie = Movie.query.get_or_404(movie_id)
 
-    # Check for JSON data
     if not request.is_json:
-        return jsonify({'success': False, 'message': '无效请求'}), 400
+        return jsonify({'success': False, 'message': 'Invalid request'}), 400
 
     data = request.get_json()
     action = data.get('action', 'like')
 
     if action == 'like':
         if not current_user.is_liking_movie(movie):
-            # Using raw SQL to insert into association table
-            stmt = user_likes.insert().values(user_id=current_user.id, movie_id=movie.id)
+            stmt = user_likes.insert().values(
+                user_id=current_user.id,
+                movie_id=movie.id
+            )
             db.session.execute(stmt)
             db.session.commit()
 
-            # 获取更新后的点赞数量
-            from sqlalchemy import func
             likes_count = db.session.query(func.count(user_likes.c.user_id))\
                 .filter(user_likes.c.movie_id == movie_id)\
                 .scalar()
@@ -375,7 +355,7 @@ def like_movie(movie_id):
                 'action': 'liked',
                 'new_likes_count': likes_count
             })
-    else:  # unlike
+    else:
         if current_user.is_liking_movie(movie):
             stmt = user_likes.delete().where(
                 user_likes.c.user_id == current_user.id,
@@ -384,8 +364,6 @@ def like_movie(movie_id):
             db.session.execute(stmt)
             db.session.commit()
 
-            # 获取更新后的点赞数量
-            from sqlalchemy import func
             likes_count = db.session.query(func.count(user_likes.c.user_id))\
                 .filter(user_likes.c.movie_id == movie_id)\
                 .scalar()
@@ -396,43 +374,44 @@ def like_movie(movie_id):
                 'new_likes_count': likes_count
             })
 
-    # 如果无需更改，获取当前点赞数量
-    from sqlalchemy import func
     current_likes_count = db.session.query(func.count(user_likes.c.user_id))\
         .filter(user_likes.c.movie_id == movie_id)\
         .scalar()
 
     return jsonify({
         'success': False,
-        'message': '无需更改',
+        'message': 'No change needed',
         'current_likes_count': current_likes_count
     })
 
+
 @app.route('/movie/<int:movie_id>/watchlist', methods=['POST'])
 @login_required
-@csrf.exempt  # AJAX endpoint with custom CSRF handling
+@csrf.exempt
 def watchlist_movie(movie_id):
-    """Add or remove from watchlist (AJAX endpoint)"""
-    # 检查用户是否已登录
     if not current_user.is_authenticated:
-        return jsonify({'success': False, 'message': '请先登录'}), 401
-
+        return (
+            jsonify({'success': False, 'message': 'Please login first'}),
+            401
+        )
     movie = Movie.query.get_or_404(movie_id)
 
-    # Check for JSON data
     if not request.is_json:
-        return jsonify({'success': False, 'message': '无效请求'}), 400
+        return jsonify({'success': False, 'message': 'Invalid request'}), 400
 
     data = request.get_json()
     action = data.get('action', 'add')
 
     if action == 'add':
         if not current_user.is_watching_movie(movie):
-            stmt = user_watchlist.insert().values(user_id=current_user.id, movie_id=movie.id)
+            stmt = user_watchlist.insert().values(
+                user_id=current_user.id,
+                movie_id=movie.id
+            )
             db.session.execute(stmt)
             db.session.commit()
             return jsonify({'success': True, 'action': 'added'})
-    else:  # remove
+    else:
         if current_user.is_watching_movie(movie):
             stmt = user_watchlist.delete().where(
                 user_watchlist.c.user_id == current_user.id,
@@ -442,29 +421,26 @@ def watchlist_movie(movie_id):
             db.session.commit()
             return jsonify({'success': True, 'action': 'removed'})
 
-    return jsonify({'success': False, 'message': '无需更改'})
+    return jsonify({'success': False, 'message': 'No change needed'})
+
 
 @app.route('/review/<int:review_id>/like', methods=['POST'])
 @login_required
-@csrf.exempt  # AJAX endpoint with custom CSRF handling
+@csrf.exempt
 def like_review(review_id):
-    """Like or unlike a review (AJAX endpoint)"""
-    from sqlalchemy.orm import joinedload
-
-    # 检查用户是否已登录
     if not current_user.is_authenticated:
-        return jsonify({'success': False, 'message': '请先登录'}), 401
-
+        return (
+            jsonify({'success': False, 'message': 'Please login first'}),
+            401
+        )
     review = Review.query.get_or_404(review_id)
 
-    # Check for JSON data
     if not request.is_json:
-        return jsonify({'success': False, 'message': '无效请求'}), 400
+        return jsonify({'success': False, 'message': 'Invalid request'}), 400
 
     data = request.get_json()
     action = data.get('action', 'like')
 
-    # 使用查询检查用户是否已经点赞了该评论
     is_liking = db.session.query(
         review_likes.select().where(
             review_likes.c.user_id == current_user.id,
@@ -473,12 +449,16 @@ def like_review(review_id):
     ).scalar()
 
     if action == 'like' and not is_liking:
-        stmt = review_likes.insert().values(user_id=current_user.id, review_id=review.id)
+        stmt = review_likes.insert().values(
+            user_id=current_user.id,
+            review_id=review.id
+        )
         db.session.execute(stmt)
         db.session.commit()
 
-        # 重新查询以获取更新后的点赞数
-        review = Review.query.options(joinedload(Review.liked_by)).get(review_id)
+        review = Review.query.options(
+            joinedload(Review.liked_by)
+        ).get(review_id)
 
         return jsonify({
             'success': True,
@@ -494,8 +474,9 @@ def like_review(review_id):
         db.session.execute(stmt)
         db.session.commit()
 
-        # 重新查询以获取更新后的点赞数
-        review = Review.query.options(joinedload(Review.liked_by)).get(review_id)
+        review = (Review.query
+                  .options(joinedload(Review.liked_by))
+                  .get(review_id))
 
         return jsonify({
             'success': True,
@@ -505,18 +486,17 @@ def like_review(review_id):
 
     return jsonify({
         'success': False,
-        'message': '无需更改',
+        'message': 'No change needed',
         'current_likes_count': len(review.liked_by)
     })
 
+
 @app.route('/review/<int:review_id>/delete', methods=['POST'])
 @login_required
-@csrf.exempt  # AJAX endpoint with custom CSRF handling
+@csrf.exempt
 def delete_review(review_id):
-    """Delete a review (AJAX endpoint)"""
     review = Review.query.get_or_404(review_id)
 
-    # Check if user owns the review
     if review.user_id != current_user.id and not current_user.is_admin:
         return jsonify({'success': False, 'message': 'Permission denied'}), 403
 
@@ -528,23 +508,20 @@ def delete_review(review_id):
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    """User login"""
     if current_user.is_authenticated:
         return redirect(url_for('index'))
 
     form = LoginForm()
 
     if form.validate_on_submit():
-        # Try to find user by username or email
         user = User.query.filter(
             (User.username == form.username.data) |
             (User.email == form.username.data)
         ).first()
 
         if user and user.check_password(form.password.data):
-            # 修复：正确传递 remember_me 参数
             login_user(user, remember=form.remember_me.data)
-            user.last_login = datetime.utcnow()
+            user.last_login = datetime.now(timezone.utc)
             db.session.commit()
 
             flash('Logged in successfully!', 'success')
@@ -556,9 +533,9 @@ def login():
 
     return render_template('login.html', form=form)
 
+
 @app.route('/register', methods=['GET', 'POST'])
 def register():
-    """User registration"""
     if current_user.is_authenticated:
         return redirect(url_for('index'))
 
@@ -586,7 +563,6 @@ def register():
 @app.route('/logout')
 @login_required
 def logout():
-    """User logout"""
     logout_user()
     flash('You have been logged out.', 'info')
     return redirect(url_for('index'))
@@ -595,42 +571,31 @@ def logout():
 @app.route('/profile')
 @login_required
 def profile():
-    """User profile page"""
-    from sqlalchemy import desc, func
-
-    # Get user stats
     user_stats = current_user.get_stats()
 
-    # Get user's reviews (latest 5) - 预加载 liked_by 关系
     user_reviews = Review.query \
         .options(
-        joinedload(Review.movie),
-        joinedload(Review.liked_by)  # 添加这一行
-    ) \
+            joinedload(Review.movie),
+            joinedload(Review.liked_by)
+        ) \
         .filter_by(user_id=current_user.id) \
         .order_by(desc(Review.created_at)) \
         .limit(5) \
         .all()
 
-    # 为每个评论计算点赞数和当前用户点赞状态
     for review in user_reviews:
-        # 计算点赞数
         review.likes_count = len(review.liked_by)
-
-        # 检查当前用户是否已点赞
         review.is_liked_by_current = False
         if current_user.is_authenticated:
             review.is_liked_by_current = any(
                 user.id == current_user.id for user in review.liked_by
             )
 
-    # Get liked movies
     liked_movies = current_user.liked_movies \
         .options(joinedload(Movie.genres)) \
         .limit(10) \
         .all()
 
-    # Get watchlist with added_at time
     watchlist_query = db.session.query(Movie, user_watchlist.c.added_at) \
         .join(user_watchlist, Movie.id == user_watchlist.c.movie_id) \
         .filter(user_watchlist.c.user_id == current_user.id) \
@@ -639,13 +604,11 @@ def profile():
         .limit(10) \
         .all()
 
-    # Separate movies and added_at times
     watchlist_movies = []
     for movie, added_at in watchlist_query:
         movie.added_at = added_at
         watchlist_movies.append(movie)
 
-    # Get recommendations
     recommended_movies = get_recommendations(current_user)
 
     edit_form = EditProfileForm(original_email=current_user.email)
@@ -658,10 +621,10 @@ def profile():
                            recommended_movies=recommended_movies,
                            edit_form=edit_form)
 
+
 @app.route('/profile/edit', methods=['POST'])
 @login_required
 def edit_profile():
-    """Edit user profile"""
     form = EditProfileForm(original_email=current_user.email)
 
     if form.validate_on_submit():
@@ -680,12 +643,7 @@ def edit_profile():
 
 
 def get_recommendations(user, limit=6):
-    """Generate movie recommendations for a user"""
-    from sqlalchemy import func, desc  # 添加导入
-
     if not user.liked_movies.count():
-        # If user hasn't liked any movies, show popular movies
-        # 创建子查询获取平均评分
         avg_rating_subquery = db.session.query(
             Review.movie_id,
             func.avg(Review.rating).label('avg_rating')
@@ -693,12 +651,14 @@ def get_recommendations(user, limit=6):
 
         return Movie.query \
             .options(joinedload(Movie.genres)) \
-            .outerjoin(avg_rating_subquery, Movie.id == avg_rating_subquery.c.movie_id) \
+            .outerjoin(
+                avg_rating_subquery,
+                Movie.id == avg_rating_subquery.c.movie_id
+            ) \
             .order_by(desc(avg_rating_subquery.c.avg_rating)) \
             .limit(limit) \
             .all()
 
-    # Get genres of liked movies
     liked_genre_ids = db.session.query(Genre.id) \
         .join(Genre.movies) \
         .join(user_likes, Movie.id == user_likes.c.movie_id) \
@@ -708,7 +668,6 @@ def get_recommendations(user, limit=6):
 
     liked_genre_ids = [id[0] for id in liked_genre_ids]
 
-    # Find movies with similar genres that user hasn't liked
     recommendations = Movie.query \
         .options(joinedload(Movie.genres)) \
         .join(Movie.genres) \
@@ -721,9 +680,9 @@ def get_recommendations(user, limit=6):
 
     return recommendations
 
+
 @app.route('/search')
 def search():
-    """Search movies and people"""
     query = request.args.get('q', '').strip()
     category = request.args.get('category', '')
     year_filter = request.args.get('year', '')
@@ -740,26 +699,28 @@ def search():
     if query:
         start_time = datetime.now()
 
-        # Build search query for movies
         movie_query = Movie.query.options(joinedload(Movie.genres))
 
-        # Apply search based on category
         if not category or category == 'title':
             movie_query = movie_query.filter(Movie.title.ilike(f'%{query}%'))
         elif category == 'actor':
             movie_query = movie_query.filter(Movie.cast.ilike(f'%{query}%'))
         elif category == 'director':
-            movie_query = movie_query.filter(Movie.director.ilike(f'%{query}%'))
+            movie_query = movie_query.filter(
+                Movie.director.ilike(f'%{query}%')
+            )
         elif category == 'genre':
-            movie_query = movie_query.join(Movie.genres).filter(Genre.name.ilike(f'%{query}%'))
+            movie_query = movie_query.join(
+                Movie.genres
+            ).filter(
+                Genre.name.ilike(f'%{query}%')
+            )
         elif category == 'plot':
             movie_query = movie_query.filter(Movie.plot.ilike(f'%{query}%'))
 
-        # Apply additional filters
         if year_filter:
             movie_query = movie_query.filter(Movie.year == int(year_filter))
 
-        # 如果有最小评分要求，需要连接评分子查询
         if min_rating > 0:
             avg_rating_subquery = db.session.query(
                 Review.movie_id,
@@ -771,20 +732,16 @@ def search():
                 Movie.id == avg_rating_subquery.c.movie_id
             ).filter(avg_rating_subquery.c.avg_rating >= min_rating)
 
-        # Paginate movie results
-        movies_paginated = movie_query.paginate(page=page, per_page=10, error_out=False)
+        movies_paginated = movie_query.paginate(
+            page=page,
+            per_page=10,
+            error_out=False
+        )
         results['movies'] = movies_paginated
-
-        # Search for people (actors/directors)
-        if not category or category in ['actor', 'director']:
-            # This is a simplified implementation
-            # In a real app, you would have separate Person and Role models
-            pass
 
         total_results = movies_paginated.total
         search_time = (datetime.now() - start_time).total_seconds()
 
-        # Log search history for authenticated users
         if current_user.is_authenticated:
             search_log = SearchHistory(
                 query=query,
@@ -794,7 +751,6 @@ def search():
             db.session.add(search_log)
             db.session.commit()
 
-    # Get popular searches for suggestions
     popular_searches = db.session.query(
         SearchHistory.query,
         func.count(SearchHistory.id).label('count')
@@ -805,11 +761,12 @@ def search():
 
     popular_searches = [search[0] for search in popular_searches]
 
-    # Get available years for filter
-    years = db.session.query(Movie.year).distinct().order_by(desc(Movie.year)).all()
+    years = (db.session.query(Movie.year)
+             .distinct()
+             .order_by(desc(Movie.year))
+             .all())
     years = [year[0] for year in years]
 
-    # Generate search suggestions
     suggestions = generate_search_suggestions(query)
 
     return render_template('search.html',
@@ -827,11 +784,9 @@ def search():
 
 
 def generate_search_suggestions(query):
-    """Generate search suggestions based on query"""
     if not query or len(query) < 2:
         return []
 
-    # Find movies with similar titles
     similar_movies = Movie.query \
         .filter(Movie.title.ilike(f'{query}%')) \
         .order_by(Movie.title) \
@@ -840,7 +795,6 @@ def generate_search_suggestions(query):
 
     suggestions = [movie.title for movie in similar_movies]
 
-    # Add genre suggestions
     similar_genres = Genre.query \
         .filter(Genre.name.ilike(f'{query}%')) \
         .limit(3) \
@@ -848,25 +802,25 @@ def generate_search_suggestions(query):
 
     suggestions.extend([genre.name for genre in similar_genres])
 
-    return suggestions[:8]  # Limit to 8 suggestions
+    return suggestions[:8]
 
 
 @app.route('/api/csrf-token')
 def get_csrf_token():
-    """Get CSRF token for AJAX requests"""
     return jsonify({'csrf_token': generate_csrf()})
 
 
-# Static file serving
 @app.route('/static/<path:filename>')
 def serve_static(filename):
     return send_from_directory('static', filename)
 
 
-# Health check endpoint
 @app.route('/health')
 def health_check():
-    return jsonify({'status': 'healthy', 'timestamp': datetime.utcnow().isoformat()})
+    return jsonify({
+        'status': 'healthy',
+        'timestamp': datetime.now(timezone.utc).isoformat()
+    })
 
 
 if __name__ == '__main__':
